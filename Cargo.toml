@@ -1,7 +1,12 @@
 [package]
-name = "server"
+name = "sunny"
 version = "0.1.0"
 edition = "2021"
+authors = ["SummaryPuppet"]
+description = "A minimalist web framework for rust"
+readme = "README.md"
+repository = "https://github.com/SummaryPuppet/sunny_framework"
+publish = false
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
