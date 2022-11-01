@@ -20,7 +20,7 @@ impl Response {
         let length = js.len();
 
         let response = format!("{status_line}\r\nContent-Type: application/json\r\nContent-Length: {length}\r\n\r\n{js}");
-        println!("{}", &response);
+
         response
     }
 

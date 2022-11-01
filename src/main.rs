@@ -5,7 +5,6 @@ use router::{response, Router};
 fn main() {
     let mut app = Router::new();
 
-    /*
     app.get(
         String::from("/hola"),
         response::Response::view(String::from("index.html")),
@@ -15,7 +14,6 @@ fn main() {
         String::from("/"),
         response::Response::text(String::from("hola")),
     );
-    */
 
     app.get(
         String::from("/holis"),

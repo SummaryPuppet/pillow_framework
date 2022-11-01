@@ -6,30 +6,23 @@ use std::{
     net::{TcpListener, TcpStream},
 };
 
-use server::ThreadPool;
+use crate::ThreadPool;
 
-#[derive(Eq, Hash, PartialEq, Debug)]
-pub enum HttpMethods {
-    GET,
-    POST,
-    _PUT,
-    _DELETE,
-}
-
+#[derive(Clone)]
 pub struct Router {
+    addr: String,
+
     get_route: HashMap<String, String>,
     post_route: HashMap<String, String>,
-
-    request: Vec<String>,
 }
 
 impl Router {
     pub fn new() -> Router {
         Router {
+            addr: String::from("127.0.0.1"),
+
             get_route: HashMap::new(),
             post_route: HashMap::new(),
-
-            request: Vec::new(),
         }
     }
 }
@@ -45,25 +38,17 @@ impl Router {
 }
 
 impl Router {
-    pub fn listen(&mut self, port: &str) {
-        let ip = "127.0.0.1";
-        let port_complete = format!("{}:{}", ip, &port);
+    pub fn listen(&self, port: &str) {
+        let port_complete = format!("{}:{}", &self.addr, &port);
 
-        let listener = TcpListener::bind(&port_complete).unwrap();
-        let pool = ThreadPool::new(30);
+        let listener = TcpListener::bind(port_complete).unwrap();
+        let pool = ThreadPool::new(70);
 
         for stream in listener.incoming().take(2) {
             let stream = stream.unwrap();
+            let res = self.get_route.clone();
 
-            //pool.execute(&mut move || handle_connection(stream, &self.get_route));
-
-            handle_connection(stream, &self.get_route);
-
-            /*
-            self.request = get_request(&mut stream);
-            send_response(&mut stream, &self.actions[0]);
-            println!("{:?}", self.request)
-            */
+            pool.execute(move || handle_connection(stream, &res));
         }
     }
 }
@@ -71,11 +56,10 @@ impl Router {
 fn handle_connection(mut stream: TcpStream, response: &HashMap<String, String>) {
     let request = get_request(&mut stream);
 
-    for res in response.values() {
-        send_response(&mut stream, res)
+    match response.get(request[0].as_str()) {
+        Some(res) => send_response(&mut stream, res),
+        None => {}
     }
-
-    println!("{:?}", request);
 }
 
 fn get_request(stream: &mut TcpStream) -> Vec<String> {
@@ -100,7 +84,7 @@ fn return_route(mut request: Vec<String>) -> Vec<String> {
         }
     }
 
-    request.push(route);
+    request.insert(0, route);
     request
 }
 

@@ -8,7 +8,7 @@ pub struct ThreadPool {
     sender: Option<mpsc::Sender<Job>>,
 }
 
-type Job = Box<dyn FnMut() + Send + 'static>;
+type Job = Box<dyn FnOnce() + Send + 'static>;
 
 impl ThreadPool {
     pub fn new(size: usize) -> ThreadPool {
@@ -32,7 +32,7 @@ impl ThreadPool {
 
     pub fn execute<F>(&self, f: F)
     where
-        F: FnMut() + Send + 'static,
+        F: FnOnce() + Send + 'static,
     {
         let job = Box::new(f);
         self.sender.as_ref().unwrap().send(job).unwrap();
@@ -60,7 +60,7 @@ impl Worker {
     fn new(id: usize, reciver: Arc<Mutex<mpsc::Receiver<Job>>>) -> Worker {
         let thread = thread::spawn(move || loop {
             match reciver.lock().unwrap().recv() {
-                Ok(mut job) => {
+                Ok(job) => {
                     println!("Worker {id}, got a job");
                     job();
                 }
@@ -77,3 +77,6 @@ impl Worker {
         }
     }
 }
+
+pub mod router;
+pub use router::response;
