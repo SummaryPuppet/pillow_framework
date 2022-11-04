@@ -6,7 +6,6 @@ authors = ["SummaryPuppet"]
 description = "A minimalist web framework for rust"
 keywords = ["web", "backend"]
 categories = ["web-programming"]
-license = "MIT"
 license-file = "LICENSE"
 homepage = ""
 documentation = ""
