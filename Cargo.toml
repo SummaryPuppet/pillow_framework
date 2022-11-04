@@ -12,7 +12,7 @@ homepage = ""
 documentation = ""
 repository = "https://github.com/SummaryPuppet/pillow_framework"
 readme = "README.md"
-publish = false
+publish = true
 exclude = ["/views"]
 
 
