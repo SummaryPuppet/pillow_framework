@@ -1,4 +1,4 @@
-# Sunny Framework
+# Pillow Framework
 
 Is a minimalist framework for rust inspired in Expressjs
 
@@ -13,7 +13,7 @@ cargo run --examples
 clone project
 
 ```bash
-git clone github.com/SummaryPuppet/sunny_framework.git
+git clone github.com/SummaryPuppet/pillow_framework.git
 cd sunny_framework
 ```
 
