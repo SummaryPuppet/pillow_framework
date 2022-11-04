@@ -1,12 +1,16 @@
+pub mod request;
 pub mod response;
 
 use std::{
     collections::HashMap,
-    io::{prelude::*, BufReader},
+    io::prelude::*,
     net::{TcpListener, TcpStream},
 };
 
-use crate::ThreadPool;
+use pillow::ThreadPool;
+use request::Request;
+
+use self::response::Response;
 
 #[derive(Clone)]
 pub struct Router {
@@ -28,11 +32,29 @@ impl Router {
 }
 
 impl Router {
-    pub fn get(&mut self, uri: String, action: String) {
+    pub fn get<F>(&mut self, uri: &str, mut controller: F)
+    where
+        F: FnMut(Request, Response) -> String,
+    {
+        let response = Response::new();
+        let request = Request::new();
+
+        let action = controller(request, response);
+        let uri = String::from(uri);
+
         self.get_route.insert(uri, action);
     }
 
-    pub fn post(&mut self, uri: String, action: String) {
+    pub fn post<F>(&mut self, uri: &str, mut controller: F)
+    where
+        F: FnMut(Request, Response) -> String,
+    {
+        let response = Response::new();
+        let request = Request::new();
+
+        let action = controller(request, response);
+        let uri = String::from(uri);
+
         self.post_route.insert(uri, action);
     }
 }
@@ -42,9 +64,9 @@ impl Router {
         let port_complete = format!("{}:{}", &self.addr, &port);
 
         let listener = TcpListener::bind(port_complete).unwrap();
-        let pool = ThreadPool::new(70);
+        let pool = ThreadPool::new(40);
 
-        for stream in listener.incoming().take(2) {
+        for stream in listener.incoming() {
             let stream = stream.unwrap();
             let res = self.get_route.clone();
 
@@ -54,40 +76,17 @@ impl Router {
 }
 
 fn handle_connection(mut stream: TcpStream, response: &HashMap<String, String>) {
-    let request = get_request(&mut stream);
+    let request = Request::from_stream(&mut stream);
 
-    match response.get(request[0].as_str()) {
+    match response.get(request.path.as_str()) {
         Some(res) => send_response(&mut stream, res),
         None => {}
     }
 }
 
-fn get_request(stream: &mut TcpStream) -> Vec<String> {
-    let buf_reader = BufReader::new(stream);
-
-    let http_request: Vec<_> = buf_reader
-        .lines()
-        .map(|result| result.unwrap())
-        .take_while(|line| !line.is_empty())
-        .collect();
-
-    return_route(http_request)
-}
-
-fn return_route(mut request: Vec<String>) -> Vec<String> {
-    let mut route = String::new();
-
-    for s in request[0].split_whitespace() {
-        if s.starts_with("/") {
-            route = String::from(s);
-            break;
-        }
-    }
-
-    request.insert(0, route);
-    request
-}
-
 fn send_response(stream: &mut TcpStream, response: &String) {
-    stream.write_all(response.as_bytes()).unwrap();
+    match stream.write_all(response.as_bytes()) {
+        Ok(()) => {}
+        Err(error) => println!("Error: {}", error),
+    };
 }

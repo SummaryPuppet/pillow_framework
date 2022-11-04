@@ -1,35 +1,24 @@
 mod router;
 
-use router::{response, Router};
+use router::Router;
 
 fn main() {
     let mut app = Router::new();
 
-    app.get(
-        String::from("/hola"),
-        response::Response::view(String::from("index.html")),
-    );
+    app.get("/", |_, response| response.view(String::from("index.html")));
 
-    app.get(
-        String::from("/"),
-        response::Response::text(String::from("hola")),
-    );
+    app.get("/texto", |_, response| response.text(String::from("hola")));
 
-    app.get(
-        String::from("/holis"),
-        response::Response::json(String::from(
-            r#"
-            {
-           "hola": "hola" 
-            }
-        "#,
-        )),
-    );
+    let json = r#"
+        {
+            "name": "SummaryPuppet",
+            "age": 18
+        }
+        "#;
 
-    app.post(
-        String::from("/jose"),
-        response::Response::view(String::from("index.html")),
-    );
+    app.get("/j", |_, response| response.json(json));
+
+    app.post("/jose", |_, response| response.text(String::from("hola")));
 
     println!("Server on port: http://127.0.0.1:5000");
     app.listen("5000");

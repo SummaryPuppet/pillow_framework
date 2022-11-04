@@ -52,7 +52,7 @@ impl Drop for ThreadPool {
 }
 
 struct Worker {
-    id: usize,
+    _id: usize,
     thread: Option<JoinHandle<()>>,
 }
 
@@ -72,11 +72,10 @@ impl Worker {
         });
 
         Worker {
-            id,
+            _id: id,
             thread: Some(thread),
         }
     }
 }
 
-pub mod router;
-pub use router::response;
+//pub mod router;
