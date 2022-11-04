@@ -4,11 +4,27 @@ Is a minimalist framework for rust inspired in Expressjs
 
 ## Getting started
 
+Add dependencie
+
 ```bash
-cargo run --examples
+cargo add pillow
 ```
 
-## For developers
+```rust
+let app = Router::new();
+
+app.get("/", |request, response| response.view("index.html"));
+
+app.listen("5000");
+```
+
+## Lincese
+
+MIT Lincese
+
+## Contribution
+
+### For developers
 
 clone project
 

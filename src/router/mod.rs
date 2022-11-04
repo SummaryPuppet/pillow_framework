@@ -7,8 +7,9 @@ use std::{
     net::{TcpListener, TcpStream},
 };
 
-use pillow::ThreadPool;
 use request::Request;
+
+use crate::ThreadPool;
 
 use self::response::Response;
 
