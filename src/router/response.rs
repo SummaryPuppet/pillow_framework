@@ -1,21 +1,37 @@
 use std::fs;
 
 pub struct Response {
+    /// Status Line
+    /// Like HTTP/1.1 200 OK
     status_line: String,
+    pub headers: Vec<String>,
 }
 
 use chrono;
 use serde_json::Value;
 
 impl Response {
+    /// Returns a new Response
     pub fn new() -> Response {
         Response {
             status_line: String::from("HTTP/1.1 200 OK"),
+            headers: Vec::new(),
         }
     }
 }
 
 impl Response {
+    /// Send a html file from views directory
+    ///
+    /// # Arguments
+    ///
+    /// * page - A String that the page on views directory
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// app.get("/", |_, response| response.view("index.html"));
+    /// ```
     pub fn view(&self, page: String) -> String {
         let status_line = &self.status_line;
 
@@ -30,6 +46,23 @@ impl Response {
         response
     }
 
+    /// Send a json
+    ///
+    /// # Arguments
+    ///
+    /// * json - A string slice that sends to http client
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let json = r#"
+    ///     {
+    ///         "name": "SummaryPuppet",
+    ///         "age": 18
+    ///     }
+    /// "#
+    /// app.get("/", |_, response| response.json(js));
+    /// ```
     pub fn json(&self, js: &str) -> String {
         let status_line = &self.status_line;
         let length = js.trim().len();

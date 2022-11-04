@@ -3,6 +3,8 @@ use std::{
     thread::{self, JoinHandle},
 };
 
+//pub mod router;
+
 pub struct ThreadPool {
     workers: Vec<Worker>,
     sender: Option<mpsc::Sender<Job>>,
@@ -77,5 +79,3 @@ impl Worker {
         }
     }
 }
-
-pub mod router;

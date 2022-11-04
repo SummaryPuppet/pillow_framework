@@ -5,12 +5,22 @@ use std::{
 
 #[derive(Debug)]
 pub struct Request {
+    /// Vector of headers
     pub headers: Vec<String>,
+    /// Method used
+    ///
+    /// # Examples
+    /// GET
+    /// POST
+    /// PUT
+    /// DELETE
     pub method: String,
+    /// Path of route
     pub path: String,
 }
 
 impl Request {
+    /// Return a new Request
     pub fn new() -> Request {
         Request {
             headers: Vec::new(),
@@ -19,6 +29,7 @@ impl Request {
         }
     }
 
+    /// Return a new Request from TcpStream
     pub fn from_stream(stream: &mut TcpStream) -> Request {
         let buf_reader = BufReader::new(stream);
 

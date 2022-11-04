@@ -7,11 +7,10 @@ use std::{
     net::{TcpListener, TcpStream},
 };
 
+use pillow::ThreadPool;
 use request::Request;
 
-use crate::ThreadPool;
-
-use self::response::Response;
+pub use self::response::Response;
 
 #[derive(Clone)]
 pub struct Router {
@@ -22,6 +21,13 @@ pub struct Router {
 }
 
 impl Router {
+    /// Returns a new Router
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let mut app = Router::new();
+    /// ```
     pub fn new() -> Router {
         Router {
             addr: String::from("127.0.0.1"),
@@ -33,6 +39,19 @@ impl Router {
 }
 
 impl Router {
+    /// Method get
+    /// # Arguments
+    ///
+    /// * `uri` - Path of route
+    /// * `controller` - Callback function
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let mut app = Router::new();
+    ///
+    /// app.get("/", |request, response| response.view("index.html"));
+    /// ```
     pub fn get<F>(&mut self, uri: &str, mut controller: F)
     where
         F: FnMut(Request, Response) -> String,
@@ -61,6 +80,18 @@ impl Router {
 }
 
 impl Router {
+    /// Method for listen in port argument
+    ///
+    /// # Arguments
+    ///
+    /// * `port` - A string slice that port
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let mut app = Router::new();
+    /// app.listen("5000");
+    /// ```
     pub fn listen(&self, port: &str) {
         let port_complete = format!("{}:{}", &self.addr, &port);
 
