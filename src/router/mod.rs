@@ -7,14 +7,19 @@ use std::{
     net::{TcpListener, TcpStream},
 };
 
-use pillow::ThreadPool;
+use regex::Regex;
+
 use request::Request;
+
+use crate::server::ThreadPool;
 
 pub use self::response::Response;
 
 #[derive(Clone)]
 pub struct Router {
     addr: String,
+
+    _regex: Regex,
 
     get_route: HashMap<String, String>,
     post_route: HashMap<String, String>,
@@ -31,6 +36,8 @@ impl Router {
     pub fn new() -> Router {
         Router {
             addr: String::from("127.0.0.1"),
+
+            _regex: Regex::new(r#"/(<[a-zA-Z]+>)/g"#).unwrap(),
 
             get_route: HashMap::new(),
             post_route: HashMap::new(),
@@ -60,6 +67,7 @@ impl Router {
         let request = Request::new();
 
         let action = controller(request, response);
+
         let uri = String::from(uri);
 
         self.get_route.insert(uri, action);
@@ -99,17 +107,16 @@ impl Router {
         let pool = ThreadPool::new(40);
 
         for stream in listener.incoming() {
-            let stream = stream.unwrap();
+            let mut stream = stream.unwrap();
+            let request = Request::from_stream(&mut stream);
             let res = self.get_route.clone();
 
-            pool.execute(move || handle_connection(stream, &res));
+            pool.execute(move || handle_connection(stream, request, &res));
         }
     }
 }
 
-fn handle_connection(mut stream: TcpStream, response: &HashMap<String, String>) {
-    let request = Request::from_stream(&mut stream);
-
+fn handle_connection(mut stream: TcpStream, request: Request, response: &HashMap<String, String>) {
     match response.get(request.path.as_str()) {
         Some(res) => send_response(&mut stream, res),
         None => {}

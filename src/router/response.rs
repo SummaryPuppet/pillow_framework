@@ -35,7 +35,7 @@ impl Response {
     pub fn view(&self, page: String) -> String {
         let status_line = &self.status_line;
 
-        let path = format!("views/{page}");
+        let path = format!("resources/views/{page}");
         let contents = fs::read_to_string(&path).unwrap();
         let length = contents.len();
         let e_tag = r#""3314042""#;
@@ -73,7 +73,6 @@ impl Response {
         let json: Value = serde_json::from_str(&js).unwrap();
 
         let response = format!("{status_line}\r\nDate: {date}\r\nServer: Sunny\r\nLast-Modified: {date}\r\nETag: {e_tag}\r\nAccept-Ranges: bytes\r\nVary: Accept-Encoding\r\nContent-Length: {length}\r\nContent-Type: application/json; charset=utf-8\r\n\r\n{json}", );
-        println!("{}", &response);
 
         response
     }
@@ -85,5 +84,38 @@ impl Response {
         let response = format!("{status_line}\r\nContent-Length: {length}\r\n\r\n{txt}");
 
         response
+    }
+
+    pub fn static_files(&self) {
+        //let status_line = &self.status_line;
+        let path = format!("resources/");
+
+        let contents = fs::read_dir(&path).unwrap();
+        let mut entries = Vec::new();
+
+        for c in contents {
+            match c {
+                Ok(cs) => entries.push(cs.path()),
+                Err(error) => println!("{error}"),
+            }
+        }
+
+        for dir in entries {
+            if dir.as_os_str() != "resources/views" {
+                for file in fs::read_dir(&dir).unwrap() {
+                    println!("{:?}", file)
+                }
+            }
+        }
+
+        /*
+        let length = contents.len();
+        let e_tag = r#""3314042""#;
+        let date = chrono::offset::Local::now();
+
+        let response = format!("{status_line}\r\nDate: {date}\r\nServer: Sunny\r\nLast-Modified: {date}\r\nETag: {e_tag}\r\nAccept-Ranges: bytes\r\nContent-Length: {length}\r\nContent-Type: text/html; charset=utf-8\r\n\r\n{contents}", );
+
+        response
+        */
     }
 }
