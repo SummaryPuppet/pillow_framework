@@ -3,7 +3,7 @@ use std::{
     net::TcpStream,
 };
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Request {
     /// Vector of headers
     pub headers: Vec<String>,

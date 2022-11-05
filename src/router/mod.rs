@@ -5,6 +5,7 @@ use std::{
     collections::HashMap,
     io::prelude::*,
     net::{TcpListener, TcpStream},
+    process::Command,
 };
 
 use regex::Regex;
@@ -18,6 +19,8 @@ pub use self::response::Response;
 #[derive(Clone)]
 pub struct Router {
     addr: String,
+
+    request: Request,
 
     _regex: Regex,
 
@@ -34,12 +37,20 @@ impl Router {
     /// let mut app = Router::new();
     /// ```
     pub fn new() -> Router {
+        let mut response = Response::new();
+
         Router {
             addr: String::from("127.0.0.1"),
 
+            request: Request::new(),
+
             _regex: Regex::new(r#"/(<[a-zA-Z]+>)/g"#).unwrap(),
 
-            get_route: HashMap::new(),
+            get_route: HashMap::from([
+                (String::from("/resources/css/global.css"), response.css()),
+                (String::from("/resources/js/main.js"), response.js()),
+            ]),
+
             post_route: HashMap::new(),
         }
     }
@@ -61,10 +72,10 @@ impl Router {
     /// ```
     pub fn get<F>(&mut self, uri: &str, mut controller: F)
     where
-        F: FnMut(Request, Response) -> String,
+        F: FnMut(&Request, Response) -> String,
     {
         let response = Response::new();
-        let request = Request::new();
+        let request = &self.request;
 
         let action = controller(request, response);
 
@@ -101,17 +112,28 @@ impl Router {
     /// app.listen("5000");
     /// ```
     pub fn listen(&self, port: &str) {
-        let port_complete = format!("{}:{}", &self.addr, &port);
+        //Command::new("clear").status().unwrap();
 
-        let listener = TcpListener::bind(port_complete).unwrap();
+        let port_complete = format!("{}:{}", &self.addr, &port);
+        println!("Server on: http://{}", &port_complete);
+
+        let listener = match TcpListener::bind(port_complete) {
+            Ok(listener) => listener,
+            Err(error) => panic!("{error}"),
+        };
+
         let pool = ThreadPool::new(40);
 
         for stream in listener.incoming() {
-            let mut stream = stream.unwrap();
-            let request = Request::from_stream(&mut stream);
-            let res = self.get_route.clone();
+            match stream {
+                Ok(mut stream) => {
+                    let request = Request::from_stream(&mut stream);
+                    let res = self.get_route.clone();
 
-            pool.execute(move || handle_connection(stream, request, &res));
+                    pool.execute(move || handle_connection(stream, request, &res));
+                }
+                Err(error) => panic!("{error}"),
+            }
         }
     }
 }
@@ -128,4 +150,5 @@ fn send_response(stream: &mut TcpStream, response: &String) {
         Ok(()) => {}
         Err(error) => println!("Error: {}", error),
     };
+    stream.flush().unwrap();
 }

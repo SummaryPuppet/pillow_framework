@@ -1,29 +1,29 @@
 extern crate pillow;
 
 use pillow::router::Router;
+use pillow::serde_json::json;
 
 fn main() {
     let mut app = Router::new();
 
-    app.get("/", |_, response| response.view(String::from("index.html")));
+    app.get("/", |request, mut response| {
+        println!("{}", request.path);
+        response.view(String::from("index.html"))
+    });
 
-    app.get("/post/<jose>", |_, response| {
+    app.get("/post/<jose>", |_, mut response| {
         response.view(String::from("index.html"))
     });
 
     app.get("/texto", |_, response| response.text(String::from("hola")));
 
-    let json = r#"
-        {
-            "name": "SummaryPuppet",
-            "age": 18
-        }
-        "#;
+    let json = json!({
+        "name": "SummaryPuppet"
+    });
 
-    app.get("/j", |_, response| response.json(json));
+    app.get("/j", |_, mut response| response.json(json.to_string()));
 
     app.post("/jose", |_, response| response.text(String::from("hola")));
 
-    println!("Server on port: http://127.0.0.1:5000");
     app.listen("5000");
 }
