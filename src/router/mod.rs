@@ -17,6 +17,7 @@ use crate::server::ThreadPool;
 pub use self::response::Response;
 
 #[derive(Clone)]
+/// Instance of Router
 pub struct Router {
     addr: String,
 
@@ -34,6 +35,8 @@ impl Router {
     /// # Examples
     ///
     /// ```
+    /// use pillow::router::Router;
+    ///
     /// let mut app = Router::new();
     /// ```
     pub fn new() -> Router {
@@ -66,6 +69,8 @@ impl Router {
     /// # Examples
     ///
     /// ```
+    /// use pillow::router::Router;
+    ///
     /// let mut app = Router::new();
     ///
     /// app.get("/", |request, response| response.view("index.html"));
@@ -84,6 +89,21 @@ impl Router {
         self.get_route.insert(uri, action);
     }
 
+    /// Method post
+    /// # Arguments
+    ///
+    /// * `uri` - Path of route
+    /// * `controller` - Callback function
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use pillow::router::Router;
+    ///
+    /// let mut app = Router::new();
+    ///
+    /// app.post("/", |request, response| response.view("index.html"));
+    /// ```
     pub fn post<F>(&mut self, uri: &str, mut controller: F)
     where
         F: FnMut(Request, Response) -> String,
@@ -108,11 +128,14 @@ impl Router {
     /// # Examples
     ///
     /// ```
+    /// use pillow::router::Router;
+    ///
     /// let mut app = Router::new();
+    ///
     /// app.listen("5000");
     /// ```
     pub fn listen(&self, port: &str) {
-        //Command::new("clear").status().unwrap();
+        Command::new("clear").status().unwrap();
 
         let port_complete = format!("{}:{}", &self.addr, &port);
         println!("Server on: http://{}", &port_complete);
@@ -128,7 +151,15 @@ impl Router {
             match stream {
                 Ok(mut stream) => {
                     let request = Request::from_stream(&mut stream);
-                    let res = self.get_route.clone();
+                    let mut res: HashMap<String, String> = HashMap::new();
+
+                    match request.method.as_str() {
+                        "GET" => res = self.get_route.clone(),
+                        "POST" => res = self.post_route.clone(),
+                        "PUT" => {}
+                        "DELETE" => {}
+                        _ => {}
+                    };
 
                     pool.execute(move || handle_connection(stream, request, &res));
                 }

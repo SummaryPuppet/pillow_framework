@@ -18,6 +18,10 @@ app.get("/", |request, response| response.view("index.html"));
 app.listen("5000");
 ```
 
+## Documentation
+
+* [docs.rs](https://docs.rs/pillow/latest/pillow/)
+
 ## Lincese
 
 MIT Lincese

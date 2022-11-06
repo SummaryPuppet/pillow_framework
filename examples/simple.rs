@@ -5,9 +5,11 @@ use pillow::router::Router;
 fn main() {
     let mut app = Router::new();
 
-    app.get("/", |_, response| response.view(String::from("index.html")));
+    app.get("/", |_, mut response| {
+        response.view(String::from("index.html"))
+    });
 
-    app.get("/post/<jose>", |_, response| {
+    app.get("/post/<jose>", |_, mut response| {
         response.view(String::from("index.html"))
     });
 
@@ -20,7 +22,7 @@ fn main() {
         }
         "#;
 
-    app.get("/j", |_, response| response.json(json));
+    app.get("/j", |_, mut response| response.json(json.to_string()));
 
     app.post("/jose", |_, response| response.text(String::from("hola")));
 

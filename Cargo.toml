@@ -12,12 +12,14 @@ documentation = "https://github.com/SummaryPuppet/pillow_framework"
 repository = "https://github.com/SummaryPuppet/pillow_framework"
 readme = "README.md"
 publish = true
-exclude = ["/resources"]
+exclude = ["/resources", "/public"]
 
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 chrono = "0.4.22"
+clap = { version = "4.0.19", features = ["derive"] }
+dotenv = "0.15.0"
 regex = "1.6.0"
 serde_json = "1.0.87"

@@ -5,6 +5,7 @@ pub struct View {
 }
 
 impl View {
+    /// Returns a View instance
     pub fn new() -> View {
         View {
             path: String::from("resources"),
@@ -15,6 +16,7 @@ impl View {
 impl View {
     pub fn _render(&self) {}
 
+    /// Returns page in String format
     pub fn render_page(&self, page: String) -> String {
         let path = format!("{}/views/{page}", &self.path);
         let content = fs::read_to_string(path);
@@ -27,6 +29,7 @@ impl View {
         }
     }
 
+    /// Returns static files in Tuple(String,String) format
     pub fn static_files(&self) -> (String, String) {
         let directories = match fs::read_dir(&self.path) {
             Ok(directory) => directory,
