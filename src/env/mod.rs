@@ -9,6 +9,14 @@ impl Env {
     /// # Arguments
     ///
     /// * `var` - name of variable
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use pillow::env::Env
+    ///
+    /// let port = Env::get_env_var("".to_string());
+    /// ```
     pub fn get_env_var(var: String) -> String {
         dotenv().ok();
 

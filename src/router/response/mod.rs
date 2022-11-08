@@ -1,5 +1,6 @@
 mod view;
 
+/// Response to client
 pub struct Response {
     /// Status Line
     /// Like HTTP/1.1 200 OK
@@ -27,7 +28,15 @@ impl Response {
                 (String::from("ETag"), String::from(r#""3314042""#)),
                 (String::from("Last-Modified"), String::new()),
                 (String::from("Access-Control-Allow-Origin"), String::new()),
+                (
+                    String::from("Cache-Control"),
+                    String::from("public, max-age=0"),
+                ),
                 (String::from("Content-Type"), String::new()),
+                (
+                    String::from("Content-Segurity-Policy"),
+                    String::from("default-src https:"),
+                ),
             ]),
             cors: String::from("*"),
         }
@@ -44,7 +53,7 @@ impl Response {
     /// # Examples
     ///
     /// ```
-    /// app.get("/", |_, response| response.view("index.html"));
+    /// app.get("/", |_, mut response| response.view("index"));
     /// ```
     pub fn view(&mut self, page: String) -> String {
         let status_line = String::from("HTTP/1.1 200 OK");
@@ -135,12 +144,12 @@ impl Response {
 
         self.add_header("Access-Control-Allow-Origin", self.cors.to_string());
         self.add_header("Content-Length", css.len().to_string());
-        self.add_header("Content-Encoding", "gzip".to_string());
+        // self.add_header("Content-Encoding", "br".to_string());
         self.add_header("Content-Type", "text/css; charset=utf-8".to_string());
         self.add_header("Date", date.to_string());
         self.add_header("Last-Modified", date.to_string());
-        self.add_header("Transfer-Encoding", String::from("chunked"));
-        self.add_header("Vary", "Accept-Encoding".to_string());
+        // self.add_header("Transfer-Encoding", "chunked".to_string());
+        // self.add_header("Vary", "Accept-Encoding".to_string());
 
         let mut res = String::new();
 
@@ -163,15 +172,15 @@ impl Response {
 
         self.add_header("Access-Control-Allow-Origin", self.cors.to_string());
         self.add_header("Content-Length", js.len().to_string());
-        self.add_header("Content-Encoding", "gzip".to_string());
+        // self.add_header("Content-Encoding", "gzip".to_string());
         self.add_header(
             "Content-Type",
             "application/javascript; charset=utf-8".to_string(),
         );
         self.add_header("Date", date.to_string());
         self.add_header("Last-Modified", date.to_string());
-        self.add_header("Transfer-Encoding", String::from("chunked"));
-        self.add_header("Vary", "Accept-Encoding".to_string());
+        // self.add_header("Transfer-Encoding", String::from("chunked"));
+        // self.add_header("Vary", "Accept-Encoding".to_string());
 
         let mut res = String::new();
 
@@ -186,6 +195,16 @@ impl Response {
 }
 
 impl Response {
+    /// Add header to response
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// app.get("/", |_, response| {
+    ///     response.add_header("Content-Type", "text/hmtl".to_string());
+    ///     response.view("index")
+    /// })
+    /// ```
     pub fn add_header(&mut self, header: &str, value: String) {
         self.headers.insert(header.to_string(), value);
     }

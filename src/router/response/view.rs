@@ -18,7 +18,7 @@ impl View {
 
     /// Returns page in String format
     pub fn render_page(&self, page: String) -> String {
-        let path = format!("{}/views/{page}", &self.path);
+        let path = format!("{}/views/{page}.html", &self.path);
         let content = fs::read_to_string(path);
 
         match content {
@@ -33,7 +33,7 @@ impl View {
     pub fn static_files(&self) -> (String, String) {
         let directories = match fs::read_dir(&self.path) {
             Ok(directory) => directory,
-            Err(error) => panic!("{error}"),
+            Err(_) => panic!("Error: Create directory resources/css and resources/js in root"),
         };
 
         let mut static_dirs = Vec::new();

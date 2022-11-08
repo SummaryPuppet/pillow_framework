@@ -5,12 +5,14 @@ use pillow::router::Router;
 fn main() {
     let mut app = Router::new();
 
-    app.get("/", |_, mut response| {
-        response.view(String::from("index.html"))
+    app.get("/", |_, mut response| response.view(String::from("index")));
+
+    app.get("/about", |_, mut response| {
+        response.view(String::from("about"))
     });
 
     app.get("/post/<jose>", |_, mut response| {
-        response.view(String::from("index.html"))
+        response.view(String::from("index"))
     });
 
     app.get("/texto", |_, response| response.text(String::from("hola")));

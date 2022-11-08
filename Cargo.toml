@@ -8,14 +8,11 @@ keywords = ["web", "backend"]
 categories = ["web-programming"]
 license-file = "LICENSE"
 homepage = "https://github.com/SummaryPuppet/pillow_framework"
-documentation = "https://github.com/SummaryPuppet/pillow_framework"
+docuentation = "https://github.com/SummaryPuppet/pillow_framework"
 repository = "https://github.com/SummaryPuppet/pillow_framework"
 readme = "README.md"
 publish = true
 exclude = ["/resources", "/public"]
-
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 chrono = "0.4.22"
