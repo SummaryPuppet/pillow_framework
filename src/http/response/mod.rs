@@ -55,11 +55,11 @@ impl Response {
     /// ```
     /// app.get("/", |_, mut response| response.view("index"));
     /// ```
-    pub fn view(&mut self, page: String) -> String {
+    pub fn view(&mut self, page: &str) -> String {
         let status_line = String::from("HTTP/1.1 200 OK");
 
         let view = View::new();
-        let contents = view.render_page(page);
+        let contents = view.render_page(page.to_string());
 
         let date = chrono::offset::Local::now();
 
@@ -125,7 +125,7 @@ impl Response {
         response
     }
 
-    pub fn text(&self, txt: String) -> String {
+    pub fn text(&self, txt: &str) -> String {
         let status_line = &self.status_line;
         let length = txt.len();
 

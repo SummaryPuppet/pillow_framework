@@ -11,12 +11,17 @@
 //! In src/main.rs
 //!
 //! ```rust
-//! use pillow::router::Router;
+//! use pillow::http::router::Router;
 //!
 //! fn main(){
 //!     let mut app = Router::new();
 //!
-//!     app.get("/", |_, mut response| response.view("index.html".to_string()));
+//!     app.get("/", |_, mut response| response.view("index"));
+//!
+//!     app.post("/post", |request, response|{
+//!         println!("{:#?}", request);
+//!         response.text("hello")
+//!     })
 //!
 //!     app.listen("5000");
 //! }
@@ -32,6 +37,5 @@
 pub mod cli;
 /// Env
 pub mod env;
-/// Router
-pub mod router;
-mod server;
+/// Http
+pub mod http;
