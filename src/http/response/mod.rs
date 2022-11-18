@@ -92,12 +92,14 @@ impl Response {
     /// ```
     /// use serde_json::json;
     ///
+    /// fn (){
     /// let json = json!({
     ///     "name": "SummaryPuppet",
     ///     "age": 18
     /// })
     ///
     /// app.get("/", |_, response| response.json(js));
+    /// }
     /// ```
     pub fn json(&mut self, js: String) -> String {
         let status_line = String::from("HTTP/1.1 200 OK");
@@ -125,6 +127,7 @@ impl Response {
         response
     }
 
+    /// Send text to client
     pub fn text(&self, txt: &str) -> String {
         let status_line = &self.status_line;
         let length = txt.len();
@@ -134,6 +137,7 @@ impl Response {
         response
     }
 
+    /// Send css response to client
     pub fn css(&mut self) -> String {
         let status_line = String::from("HTTP/1.1 200 OK");
 
@@ -162,6 +166,7 @@ impl Response {
         response
     }
 
+    /// Send json to client
     pub fn js(&mut self) -> String {
         let status_line = String::from("HTTP/1.1 200 OK");
 

@@ -1,11 +1,11 @@
 [package]
 name = "pillow"
-version = "0.1.5"
+version = "0.1.6"
 edition = "2021"
 authors = ["SummaryPuppet"]
 description = "A web framework for rust"
 keywords = ["web", "backend"]
-categories = ["HTTP server"]
+categories = ["web-programming::http-server"]
 license-file = "LICENSE"
 homepage = "https://github.com/SummaryPuppet/pillow_framework"
 documentation = "https://github.com/SummaryPuppet/pillow_framework"
@@ -22,6 +22,8 @@ futures = "0.3.25"
 regex = "1.6.0"
 serde_json = "1.0.87"
 httparse = "1.8.0"
+mysql = "23.0.0"
+postgres = "0.19.4"
 
 [dependencies.async-std]
 version = "1.6"

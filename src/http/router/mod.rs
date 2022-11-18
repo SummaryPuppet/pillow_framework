@@ -1,16 +1,10 @@
 use std::process;
 
-use async_std::{
-    io::{ReadExt, WriteExt},
-    net::TcpListener,
-};
-
-use futures::StreamExt;
 use regex::Regex;
 
 use super::routes::{make_callback, Routes};
 
-use crate::http::response::Response;
+use crate::{http::response::Response, server::server_listen};
 
 /// Instance of Router
 pub struct Router {
@@ -27,7 +21,7 @@ impl Router {
     /// # Examples
     ///
     /// ```
-    /// use pillow::router::Router;
+    /// use pillow::http::router::Router;
     ///
     /// let mut app = Router::new();
     /// ```
@@ -54,9 +48,11 @@ impl Router {
     /// ```
     /// use pillow::http::router::Router;
     ///
+    /// fn main (){
     /// let mut app = Router::new();
     ///
     /// app.get("/", |request, response| response.view("index"));
+    /// }
     /// ```
     pub fn get<F>(&mut self, uri: &str, controller: F)
     where
@@ -79,9 +75,15 @@ impl Router {
     /// ```
     /// use pillow::http::router::Router;
     ///
+    /// fn main(){
     /// let mut app = Router::new();
     ///
-    /// app.post("/", |request, response| response.view("index"));
+    /// app.post("/", |request, response| {
+    ///     println("{:#?}", request);
+    ///
+    ///     response.text("hello world")
+    /// });
+    /// }
     /// ```
     pub fn post<F>(&mut self, uri: &str, controller: F)
     where
@@ -104,9 +106,11 @@ impl Router {
     /// ```
     /// use pillow::http::router::Router;
     ///
+    /// fn main (){
     /// let mut app = Router::new();
     ///
-    /// app.put("/", |request, response| response.view("index"));
+    /// app.put("/", |request, response| response.text("index"));
+    /// }
     /// ```
     pub fn put<F>(&mut self, uri: &str, controller: F)
     where
@@ -129,9 +133,11 @@ impl Router {
     /// ```
     /// use pillow::http::router::Router;
     ///
+    /// fn main (){
     /// let mut app = Router::new();
     ///
-    /// app.delete("/", |request, response| response.view("index"));
+    /// app.delete("/", |request, mut response| response.view("index"));
+    /// }
     /// ```
     pub fn delete<F>(&mut self, uri: &str, controller: F)
     where
@@ -156,49 +162,18 @@ impl Router {
     /// ```
     /// use pillow::http::router::Router;
     ///
+    /// fn main(){
     /// let mut app = Router::new();
     ///
-    /// app.listen("5000");
+    /// app.listen("5000").await;
+    /// }
     /// ```
     pub async fn listen(&self, port: &str) {
         process::Command::new("clear").status().unwrap();
 
         let port_complete = format!("{}:{}", &self.addr, &port);
-        println!("Server on: http://{}", &port_complete);
+        println!("Server on: [http://{}]", &port_complete);
 
-        let listener = TcpListener::bind(port_complete).await.unwrap();
-
-        listener
-            .incoming()
-            .for_each_concurrent(None, |tcpstream| async move {
-                let mut stream = tcpstream.unwrap();
-
-                let mut buffer = [0; 1024];
-                let mut headers = [httparse::EMPTY_HEADER; 16];
-
-                stream.read(&mut buffer).await.unwrap();
-
-                let mut request = httparse::Request::new(&mut headers);
-                let _res = request.parse(&buffer);
-
-                let res = match request.method.unwrap() {
-                    "GET" => &self.routes.get,
-                    "POST" => &self.routes.post,
-                    "PUT" => &self.routes.put,
-                    "DELETE" => &self.routes.delete,
-                    _ => &self.routes.get,
-                };
-
-                match res.get(request.path.unwrap()) {
-                    Some(res) => {
-                        let r = res(request, Response::new());
-                        stream.write_all(r.as_bytes()).await.unwrap();
-                    }
-                    None => {
-                        println!("Aqui mori")
-                    }
-                }
-            })
-            .await;
+        server_listen(port_complete, &self.routes).await;
     }
 }

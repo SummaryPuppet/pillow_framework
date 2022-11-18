@@ -1,18 +1,26 @@
 //! Pillow a web framework
 //!
-//! # Example
-//!
-//! Run
+//! Installation
 //!
 //! ```bash
 //! cargo add pillow
 //! ```
+//!
+//! or
+//!
+//! ```toml
+//! [dependencies]
+//! pillow = "0.1.6"
+//! ```
+//!
+//! # Example
 //!
 //! In src/main.rs
 //!
 //! ```rust
 //! use pillow::http::router::Router;
 //!
+//! #[async_std::main]
 //! fn main(){
 //!     let mut app = Router::new();
 //!
@@ -23,7 +31,7 @@
 //!         response.text("hello")
 //!     })
 //!
-//!     app.listen("5000");
+//!     app.listen("5000").await;
 //! }
 //! ```
 //!
@@ -35,7 +43,11 @@
 
 /// CLI for pillow app
 pub mod cli;
+/// Database
+pub mod database;
 /// Env
 pub mod env;
 /// Http
 pub mod http;
+/// Server
+mod server;

@@ -1,6 +1,6 @@
 # Pillow Framework
 
-Is a minimalist framework for rust inspired in Expressjs
+Is a web framework for rust
 
 ## Getting started
 
@@ -11,11 +11,16 @@ cargo add pillow
 ```
 
 ```rust
+use pillow::http::router::Router;
+
+#[async_std::main]
+fn main() {
 let app = Router::new();
 
-app.get("/", |request, response| response.view("index.html"));
+app.get("/", |request, response| response.view("index"));
 
-app.listen("5000");
+app.listen("5000").await;
+}
 ```
 
 ## Documentation
@@ -34,7 +39,7 @@ clone project
 
 ```bash
 git clone github.com/SummaryPuppet/pillow_framework.git
-cd sunny_framework
+cd pillow_framework
 ```
 
 and execute

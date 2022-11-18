@@ -1,6 +1,6 @@
 extern crate pillow;
 
-use pillow::http::router::Router;
+use pillow::http::{response::Response, router::Router};
 
 #[async_std::main]
 async fn main() {
@@ -8,10 +8,12 @@ async fn main() {
 
     app.get("/", |_, mut response| response.view("index"));
 
-    app.post("/post", |request, response| {
+    let x = |request: httparse::Request, response: Response| {
         println!("{:#?}", request);
-        response.text("hoola")
-    });
+        response.text("hola")
+    };
+
+    app.post("/post", x);
 
     app.listen("5000").await;
 }

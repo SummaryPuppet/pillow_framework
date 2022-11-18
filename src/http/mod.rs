@@ -1,6 +1,6 @@
-/// Response
+/// Http Response
 pub mod response;
-/// Router
+/// Http Router
 pub mod router;
 /// Routes
-mod routes;
+pub mod routes;

@@ -3,11 +3,11 @@ use std::collections::HashMap;
 use super::response::Response;
 
 /// Box<dyn FnMut(Request, Response) -> String>
-pub type ControllerType =
+pub type ControllerBoxType =
     Box<dyn Fn(httparse::Request, Response) -> String + Sync + Send + 'static>;
 
 /// HashMap<String, ControllerType>
-pub type ResponseHash = HashMap<String, ControllerType>;
+pub type ResponseHash = HashMap<String, ControllerBoxType>;
 
 /// Routes
 pub struct Routes {
@@ -36,11 +36,11 @@ impl Routes {
 }
 
 /// Create a callback from function
-pub fn make_callback<'a, F>(f: F) -> ControllerType
+pub fn make_callback<'a, F>(f: F) -> ControllerBoxType
 where
     F: Fn(httparse::Request, Response) -> String + Sync + Send + 'static,
 {
-    Box::new(f) as ControllerType
+    Box::new(f) as ControllerBoxType
 }
 
 fn css_fn(_request: httparse::Request, mut response: Response) -> String {
