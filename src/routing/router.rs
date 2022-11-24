@@ -1,10 +1,14 @@
 use std::process;
 
+use colored::Colorize;
 use regex::Regex;
 
-use super::routes::{make_callback, Routes};
+use super::{route::Route, routes::Routes};
 
-use crate::{http::response::Response, server::server_listen};
+use crate::{
+    http::{request::Request, response::Response},
+    server::server_listen,
+};
 
 /// Instance of Router
 pub struct Router {
@@ -46,7 +50,7 @@ impl Router {
     /// # Examples
     ///
     /// ```
-    /// use pillow::http::router::Router;
+    /// use pillow::routing::router::Router;
     ///
     /// fn main (){
     /// let mut app = Router::new();
@@ -56,12 +60,11 @@ impl Router {
     /// ```
     pub fn get<F>(&mut self, uri: &str, controller: F)
     where
-        F: Fn(httparse::Request, Response) -> String + Sync + Send + 'static,
+        F: Fn(Request, Response) -> String + Sync + Send + 'static,
     {
         let uri = String::from(uri);
-        let callback = make_callback(controller);
 
-        self.routes.get.insert(uri, callback);
+        self.routes.get.push(Route::new(uri, controller));
     }
 
     /// Method post
@@ -73,7 +76,7 @@ impl Router {
     /// # Examples
     ///
     /// ```
-    /// use pillow::http::router::Router;
+    /// use pillow::routing::router::Router;
     ///
     /// fn main(){
     /// let mut app = Router::new();
@@ -87,12 +90,11 @@ impl Router {
     /// ```
     pub fn post<F>(&mut self, uri: &str, controller: F)
     where
-        F: Fn(httparse::Request, Response) -> String + Sync + Send + 'static,
+        F: Fn(Request, Response) -> String + Sync + Send + 'static,
     {
         let uri = String::from(uri);
-        let callback = make_callback(controller);
 
-        self.routes.post.insert(uri, callback);
+        self.routes.post.push(Route::new(uri, controller));
     }
 
     /// Method put
@@ -104,7 +106,7 @@ impl Router {
     /// # Examples
     ///
     /// ```
-    /// use pillow::http::router::Router;
+    /// use pillow::routing::router::Router;
     ///
     /// fn main (){
     /// let mut app = Router::new();
@@ -114,12 +116,11 @@ impl Router {
     /// ```
     pub fn put<F>(&mut self, uri: &str, controller: F)
     where
-        F: Fn(httparse::Request, Response) -> String + Sync + Send + 'static,
+        F: Fn(Request, Response) -> String + Sync + Send + 'static,
     {
         let uri = String::from(uri);
-        let callback = make_callback(controller);
 
-        self.routes.put.insert(uri, callback);
+        self.routes.put.push(Route::new(uri, controller));
     }
 
     /// Method delete
@@ -131,7 +132,7 @@ impl Router {
     /// # Examples
     ///
     /// ```
-    /// use pillow::http::router::Router;
+    /// use pillow::routing::router::Router;
     ///
     /// fn main (){
     /// let mut app = Router::new();
@@ -141,12 +142,11 @@ impl Router {
     /// ```
     pub fn delete<F>(&mut self, uri: &str, controller: F)
     where
-        F: Fn(httparse::Request, Response) -> String + Sync + Send + 'static,
+        F: Fn(Request, Response) -> String + Sync + Send + 'static,
     {
         let uri = String::from(uri);
-        let callback = make_callback(controller);
 
-        self.routes.delete.insert(uri, callback);
+        self.routes.delete.push(Route::new(uri, controller));
     }
 }
 
@@ -169,10 +169,12 @@ impl Router {
     /// }
     /// ```
     pub async fn listen(&self, port: &str) {
-        process::Command::new("clear").status().unwrap();
+        // process::Command::new("clear").status().unwrap();
 
         let port_complete = format!("{}:{}", &self.addr, &port);
-        println!("Server on: [http://{}]", &port_complete);
+        let http = format!("http://{}", &port_complete);
+
+        println!("Server on: [{}]", http.green());
 
         server_listen(port_complete, &self.routes).await;
     }

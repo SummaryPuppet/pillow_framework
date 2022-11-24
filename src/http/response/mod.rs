@@ -90,18 +90,16 @@ impl Response {
     /// # Examples
     ///
     /// ```
-    /// use serde_json::json;
-    ///
     /// fn (){
-    /// let json = json!({
+    /// app.get("/", |_, response| response.json(r#"
+    /// {
     ///     "name": "SummaryPuppet",
-    ///     "age": 18
-    /// })
-    ///
-    /// app.get("/", |_, response| response.json(js));
+    ///     "age": 18,
+    /// }
+    /// "#));
     /// }
     /// ```
-    pub fn json(&mut self, js: String) -> String {
+    pub fn json(&mut self, js: &str) -> String {
         let status_line = String::from("HTTP/1.1 200 OK");
         let date = chrono::offset::Local::now();
 
@@ -166,7 +164,7 @@ impl Response {
         response
     }
 
-    /// Send json to client
+    /// Send javascript to client
     pub fn js(&mut self) -> String {
         let status_line = String::from("HTTP/1.1 200 OK");
 

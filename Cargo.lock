@@ -401,6 +401,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "colored"
+version = "2.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b3616f750b84d8f0de8a58bda93e08e2a81ad3f523089b05f1dffecab48c6cbd"
+dependencies = [
+ "atty",
+ "lazy_static",
+ "winapi",
+]
+
+[[package]]
 name = "concurrent-queue"
 version = "1.2.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1461,13 +1472,13 @@ dependencies = [
  "async-std",
  "chrono",
  "clap",
+ "colored",
  "dotenv",
  "futures",
  "httparse",
  "mysql",
  "postgres",
  "regex",
- "serde_json",
 ]
 
 [[package]]

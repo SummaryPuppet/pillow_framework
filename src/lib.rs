@@ -49,5 +49,7 @@ pub mod database;
 pub mod env;
 /// Http
 pub mod http;
+/// Routing
+pub mod routing;
 /// Server
 mod server;
