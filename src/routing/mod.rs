@@ -1,3 +1,3 @@
 mod route;
 pub mod router;
-pub mod routes;
+pub(crate) mod routes;

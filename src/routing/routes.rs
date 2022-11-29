@@ -2,9 +2,6 @@ use crate::http::{request::Request, response::Response};
 
 use super::route::Route;
 
-/// Box<dyn FnMut(Request, Response) -> String>
-pub type ControllerBoxType = Box<dyn Fn(Request, Response) -> String + Sync + Send + 'static>;
-
 /// Routes
 pub struct Routes {
     pub get: Vec<Route>,
@@ -28,18 +25,10 @@ impl Routes {
     }
 }
 
-/// Create a callback from function
-pub fn make_callback<'a, F>(f: F) -> ControllerBoxType
-where
-    F: Fn(Request, Response) -> String + Sync + Send + 'static,
-{
-    Box::new(f) as ControllerBoxType
-}
-
 fn css_fn(_request: Request, mut response: Response) -> String {
     response.css()
 }
 
 fn js_fn(_request: Request, mut response: Response) -> String {
-    response.css()
+    response.javascript()
 }

@@ -1,6 +1,6 @@
 //! Little orm
 
 /// Connection
-mod connection;
+pub mod connection;
 /// Models
 pub mod model;

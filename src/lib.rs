@@ -18,7 +18,7 @@
 //! In src/main.rs
 //!
 //! ```rust
-//! use pillow::http::router::Router;
+//! use pillow::routing::router::Router;
 //!
 //! #[async_std::main]
 //! fn main(){
@@ -47,6 +47,8 @@ pub mod cli;
 pub mod database;
 /// Env
 pub mod env;
+/// Errors
+mod error;
 /// Http
 pub mod http;
 /// Routing

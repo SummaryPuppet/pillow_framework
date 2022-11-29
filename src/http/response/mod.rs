@@ -136,7 +136,7 @@ impl Response {
     }
 
     /// Send css response to client
-    pub fn css(&mut self) -> String {
+    pub(crate) fn css(&mut self) -> String {
         let status_line = String::from("HTTP/1.1 200 OK");
 
         let view = View::new();
@@ -165,7 +165,7 @@ impl Response {
     }
 
     /// Send javascript to client
-    pub fn js(&mut self) -> String {
+    pub(crate) fn javascript(&mut self) -> String {
         let status_line = String::from("HTTP/1.1 200 OK");
 
         let view = View::new();

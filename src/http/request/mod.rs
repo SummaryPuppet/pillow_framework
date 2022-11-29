@@ -1,9 +1,11 @@
 use std::collections::HashMap;
 
+use super::http_methods::HttpMethods;
+
 /// HTTP Request
 pub struct Request {
     /// Method Like GET
-    pub method: String,
+    pub method: HttpMethods,
     /// Path of url
     pub path: String,
     /// Version
@@ -19,8 +21,16 @@ impl Request {
         let mut request = httparse::Request::new(&mut headers);
         let _ = request.parse(buffer);
 
+        let method: HttpMethods = match request.method.unwrap().to_string().as_str() {
+            "GET" => HttpMethods::GET,
+            "POST" => HttpMethods::POST,
+            "PUT" => HttpMethods::PUT,
+            "DELETE" => HttpMethods::DELETE,
+            _ => HttpMethods::GET,
+        };
+
         Request {
-            method: request.method.unwrap().to_string(),
+            method,
             path: request.path.unwrap().to_string(),
             version: request.version.unwrap(),
             parameters: HashMap::new(),
@@ -30,7 +40,7 @@ impl Request {
 
 impl Request {
     /// Push param to parameters
-    pub fn add_param(&mut self, param_name: String, param_value: String) {
+    pub(crate) fn add_param(&mut self, param_name: String, param_value: String) {
         self.parameters.insert(param_name, param_value);
     }
 }

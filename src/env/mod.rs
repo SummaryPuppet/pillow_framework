@@ -48,4 +48,13 @@ impl Env {
             Err(error) => panic!("${var} is not set: {error}"),
         }
     }
+
+    pub fn is_var_exist(var: String) -> bool {
+        dotenv().ok();
+
+        match env::var(var) {
+            Ok(_) => true,
+            Err(_) => false,
+        }
+    }
 }

@@ -1,15 +1,13 @@
 use regex::Regex;
 
-use crate::http::{request::Request, response::Response};
-
-type ControllerBoxType = Box<dyn Fn(Request, Response) -> String + Sync + Send + 'static>;
+use crate::http::{controller::Controller, request::Request, response::Response};
 
 /// Instance of Route
 pub struct Route {
     /// url path
     pub url: String,
     /// Controller Callback Function
-    pub action: ControllerBoxType,
+    pub controller: Controller,
     /// Parameters
     params: Vec<String>,
     /// Regex
@@ -28,7 +26,7 @@ impl Route {
     where
         F: Fn(Request, Response) -> String + Sync + Send + 'static,
     {
-        let action = Box::new(controller);
+        let action = Controller::new(controller);
         let re = Regex::new(r"(<[a-zA-Z]+>)").unwrap();
         let regex_words = Regex::new(r"([a-zA-Z0-9]+)").unwrap();
 
@@ -48,7 +46,7 @@ impl Route {
 
         Route {
             url,
-            action,
+            controller: action,
             params,
             regex_complete: re,
             regex_words,
@@ -57,17 +55,6 @@ impl Route {
 }
 
 impl Route {
-    // Action methods
-    pub fn get_action(&self) -> &ControllerBoxType {
-        &self.action
-    }
-
-    pub fn use_action(&self, request: Request, response: Response) -> String {
-        let res = self.get_action();
-
-        res(request, response)
-    }
-
     // Parameters methods
     pub fn has_parameters(&self) -> bool {
         self.params.len() > 0

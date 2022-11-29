@@ -14,8 +14,6 @@ impl View {
 }
 
 impl View {
-    pub fn _render(&self) {}
-
     /// Returns page in String format
     pub fn render_page(&self, page: String) -> String {
         let path = format!("{}/views/{page}.html", &self.path);
