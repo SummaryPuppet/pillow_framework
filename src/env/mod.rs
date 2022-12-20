@@ -49,12 +49,36 @@ impl Env {
         }
     }
 
+    /// Returns Bool if env var exists
+    ///
+    ///  # Arguments
+    ///
+    ///  * `var` - name of variable
+    ///
+    ///  # Examples
+    ///
+    ///  ```rust
+    ///  use pillow::env::Env
+    ///
+    ///  if (Env::is_var_exist("var".to_string())){}
+    ///  ```
     pub fn is_var_exist(var: String) -> bool {
         dotenv().ok();
 
         match env::var(var) {
             Ok(_) => true,
             Err(_) => false,
+        }
+    }
+
+    /// Returns variable if exists
+    pub fn var_exists(var: String) -> Option<String> {
+        dotenv().ok();
+
+        if Self::is_var_exist(var.to_string()) {
+            Some(Self::get_env_var(var))
+        } else {
+            None
         }
     }
 }

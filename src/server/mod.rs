@@ -5,7 +5,6 @@ use futures::{AsyncWriteExt, StreamExt};
 
 use crate::http::http_methods::HttpMethods;
 use crate::http::request::Request;
-use crate::http::response::Response;
 use crate::routing::routes::Routes;
 
 pub(crate) mod mock_test;

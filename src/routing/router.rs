@@ -23,9 +23,11 @@ impl Router {
     /// # Examples
     ///
     /// ```
-    /// use pillow::http::router::Router;
+    /// use pillow::routing::router::Router;
     ///
-    /// let mut app = Router::new();
+    /// fn main(){
+    ///     let mut app = Router::new();
+    /// }
     /// ```
     pub fn new() -> Router {
         Router {
@@ -49,9 +51,9 @@ impl Router {
     /// use pillow::routing::router::Router;
     ///
     /// fn main (){
-    /// let mut app = Router::new();
+    ///     let mut app = Router::new();
     ///
-    /// app.get("/", |_, mut response| response.view("index"));
+    ///     app.get("/", |_, mut response| response.view("index"));
     /// }
     /// ```
     pub fn get<F>(&mut self, uri: &str, controller: F)
@@ -166,7 +168,7 @@ impl Router {
     /// }
     /// ```
     pub async fn listen(&self, port: &str) {
-        if !Env::is_var_exist("DEBUG".to_string()) {
+        if !Env::is_var_exist("APP_DEBUG".to_string()) {
             process::Command::new("clear").status().unwrap();
         }
 

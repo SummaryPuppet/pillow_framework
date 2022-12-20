@@ -1,3 +1,5 @@
+use std::fmt;
+
 use regex::Regex;
 
 use crate::http::{controller::Controller, request::Request, response::Response};
@@ -69,4 +71,16 @@ impl Route {
     }
 
     // Regex methods
+}
+
+impl fmt::Display for Route {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", &self.url)
+    }
+}
+
+impl fmt::Debug for Route {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("Route").field("url", &self.url).finish()
+    }
 }

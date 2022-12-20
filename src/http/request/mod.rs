@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use super::http_methods::HttpMethods;
 
 /// HTTP Request
+#[derive(Debug)]
 pub struct Request {
     /// Method Like GET
     pub method: HttpMethods,
@@ -10,8 +11,10 @@ pub struct Request {
     pub path: String,
     /// Version
     pub version: u8,
-    /// Params
+    /// Params from url
     pub parameters: HashMap<String, String>,
+    // Body
+    // pub body:
 }
 
 impl Request {
@@ -21,7 +24,14 @@ impl Request {
         let mut request = httparse::Request::new(&mut headers);
         let _ = request.parse(buffer);
 
-        let method: HttpMethods = match request.method.unwrap().to_string().as_str() {
+        let mut httparse_method = "";
+
+        match request.method {
+            Some(method) => httparse_method = method,
+            None => println!("{:#?}", &request),
+        }
+
+        let method: HttpMethods = match httparse_method {
             "GET" => HttpMethods::GET,
             "POST" => HttpMethods::POST,
             "PUT" => HttpMethods::PUT,

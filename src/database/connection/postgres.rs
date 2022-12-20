@@ -1,6 +1,8 @@
 use colored::Colorize;
 use postgres::{Client, NoTls};
 
+use crate::env::Env;
+
 pub struct Postgres {
     _url: String,
     pub connection: Client,
@@ -8,9 +10,14 @@ pub struct Postgres {
 
 impl Postgres {
     pub fn new() -> Postgres {
+        let password = Env::get_env_var("DB_PASSWORD".to_string());
+        let db_name = Env::get_env_var("DB_NAME".to_string());
+
         // postgresql:://username:password@localhost/database
-        let url = "postgresql://postgres:password@localhost/test";
-        let client = match Client::connect(url, NoTls) {
+        // let url = "postgresql://postgres:password@localhost/test";
+
+        let url = format!("postgresql://postgres:{}@localhost/{}", password, db_name);
+        let client = match Client::connect(url.as_str(), NoTls) {
             Ok(client) => client,
             Err(error) => panic!("{}: {}", "Postgres".red(), error),
         };

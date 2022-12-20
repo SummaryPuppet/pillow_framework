@@ -19,7 +19,7 @@ async fn main() {
         );
 
         let json = format!("{{}}");
-        response.json(&json)
+        response.json_from_str(&json)
     });
 
     app.listen("5000").await;

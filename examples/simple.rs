@@ -8,20 +8,26 @@ async fn main() {
 
     app.get("/", |_, mut response| response.view("index"));
 
+    app.get("/about", |_, mut response| response.view("about"));
+
     app.get("/posts/<id>", |request, mut response| {
         println!("{:#?}", request.parameters);
 
-        response.json(
+        response.json_from_str(
             r#"{
         "params": "hola"
     }"#,
         )
     });
 
-    app.get("/dashboard/<name>", |_, response| response.text("about"));
+    app.get("/dashboard/<name>", |request, response| {
+        println!("{:#?}", request.parameters);
 
-    app.post("/post/any", |_, mut response| {
-        response.json(
+        response.text("about")
+    });
+
+    app.post("/post/any", |_request, mut response| {
+        response.json_from_str(
             r#"
             {
             "name": "James"
