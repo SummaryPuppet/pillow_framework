@@ -1,6 +1,6 @@
 [package]
 name = "pillow"
-version = "0.2.0"
+version = "0.2.1"
 edition = "2021"
 authors = ["SummaryPuppet"]
 description = "A web framework for rust"

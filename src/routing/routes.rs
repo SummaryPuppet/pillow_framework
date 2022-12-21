@@ -23,7 +23,7 @@ impl Routes {
         for c in css {
             let content = String::from(&c.content);
 
-            get_static_files.push(Route::new(c.route_absolute, move |_, mut res| {
+            get_static_files.push(Route::new(c.path, move |_, mut res| {
                 res.css(content.clone())
             }));
         }
@@ -31,7 +31,7 @@ impl Routes {
         for js in javascript {
             let content = String::from(&js.content);
 
-            get_static_files.push(Route::new(js.route_absolute, move |_, mut res| {
+            get_static_files.push(Route::new(js.path, move |_, mut res| {
                 res.javascript(content.clone())
             }));
         }

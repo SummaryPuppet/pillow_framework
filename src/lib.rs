@@ -45,15 +45,22 @@
 pub mod cli;
 /// Database
 pub mod database;
-/// Env
+/// Env application for Pillow
+///
+/// * Env
 pub mod env;
 /// Errors
 mod error;
 /// File system
 mod fs;
-/// Http
+/// Http module
+///
+/// * request
+/// * response
 pub mod http;
 /// Routing
+///
+/// * router
 pub mod routing;
 /// Server
 mod server;
@@ -61,3 +68,10 @@ mod server;
 mod session;
 /// Storage
 mod storage;
+
+/*
+pub mod main {
+    pub use crate::http;
+    pub use crate::routing::router::Router;
+}
+*/

@@ -1,3 +1,5 @@
+//! Http module
+
 /// Http Controller
 pub mod controller;
 

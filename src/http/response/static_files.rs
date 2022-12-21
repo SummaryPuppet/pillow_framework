@@ -11,6 +11,7 @@ pub(crate) struct StaticFiles {
 pub(crate) struct StaticFile {
     pub kind: StaticFileType,
     pub route_absolute: String,
+    pub path: String,
     pub name_file: String,
     pub content: String,
     pub lenght: usize,
@@ -79,9 +80,12 @@ impl StaticFile {
 
         let content = FS::read_to_string(route_absolute);
 
+        let path = format!("/{}", &route_absolute);
+
         StaticFile {
             kind,
             route_absolute: route_absolute.to_string(),
+            path,
             name_file: name_file.to_string(),
             content: content.to_string(),
             lenght: content.len(),
