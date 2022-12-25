@@ -14,3 +14,6 @@ pub mod response;
 
 /// Json
 pub mod json;
+
+/// Handler
+pub mod handler;

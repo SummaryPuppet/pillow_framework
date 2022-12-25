@@ -158,7 +158,7 @@ impl Router {
     /// # Examples
     ///
     /// ```
-    /// use pillow::http::router::Router;
+    /// use pillow::routing::router::Router;
     ///
     /// #[async_std::main]
     /// async fn main(){
@@ -177,7 +177,9 @@ impl Router {
 
         println!("Pillow on: [{}]", http.green());
 
-        server_listen(port_complete, &self.routes).await;
+        let routes = &self.routes;
+
+        server_listen(port_complete, routes.clone()).await;
     }
 }
 

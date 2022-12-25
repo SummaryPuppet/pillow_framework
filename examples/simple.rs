@@ -1,6 +1,14 @@
 extern crate pillow;
 
-use pillow::routing::router::Router;
+use pillow::{
+    http::{request::Request, response::Response},
+    json,
+    routing::router::Router,
+};
+
+fn controller(_: Request, mut response: Response) -> String {
+    response.json(json!({}))
+}
 
 #[async_std::main]
 async fn main() {
@@ -19,6 +27,8 @@ async fn main() {
     }"#,
         )
     });
+
+    app.get("/ctrl", controller);
 
     app.get("/dashboard/<name>", |request, response| {
         println!("{:#?}", request.parameters);

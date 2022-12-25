@@ -41,8 +41,6 @@
 //! $ Server on 127.0.0.1:5000
 //! ```
 
-/// CLI for pillow app
-pub mod cli;
 /// Database
 pub mod database;
 /// Env application for Pillow
@@ -68,6 +66,8 @@ mod server;
 mod session;
 /// Storage
 mod storage;
+/// Websocket module
+pub mod websocket;
 
 /*
 pub mod main {

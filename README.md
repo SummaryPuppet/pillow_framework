@@ -24,12 +24,12 @@ tokio = {version = "1.23.0", features = ["full"]}
 use pillow::http::router::Router;
 
 #[tokio::main]
-fn main() {
-let app = Router::new();
+async fn main() {
+  let app = Router::new();
 
-app.get("/", |request, response| response.view("index"));
+  app.get("/", |request, response| response.view("index"));
 
-app.listen("5000").await;
+  app.listen("5000").await;
 }
 ```
 
@@ -39,12 +39,12 @@ app.listen("5000").await;
 use pillow::http::router::Router;
 
 #[async_std::main]
-fn main() {
-let app = Router::new();
+async fn main() {
+  let app = Router::new();
 
-app.get("/", |request, response| response.view("index"));
+  app.get("/", |request, response| response.view("index"));
 
-app.listen("5000").await;
+  app.listen("5000").await;
 }
 ```
 

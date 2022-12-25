@@ -1,0 +1,40 @@
+[package]
+name = "pillow"
+version = "0.2.1"
+edition = "2021"
+authors = ["SummaryPuppet"]
+description = "A web framework for rust"
+keywords = ["web", "backend"]
+categories = ["web-programming::http-server"]
+license-file = "LICENSE"
+homepage = "https://github.com/SummaryPuppet/pillow_framework"
+documentation = "https://github.com/SummaryPuppet/pillow_framework"
+repository = "https://github.com/SummaryPuppet/pillow_framework"
+readme = "README.md"
+publish = true
+exclude = ["/resources", "/public"]
+
+
+[dependencies]
+chrono = "0.4.22"
+clap = { version = "4.0.19", features = ["derive"] }
+dotenv = "0.15.0"
+futures = "0.3.25"
+regex = "1.6.0"
+httparse = "1.8.0"
+mysql = "23.0.0"
+postgres = "0.19.4"
+colored = "2.0.0"
+serde = "1.0.148"
+serde_json = "1.0.89"
+handlebars = "4.3.5"
+
+[dependencies.async-std]
+version = "1.6"
+features = ["attributes"]
+
+[dependencies.uuid]
+version = "1.2.2"
+features = [
+    "v4",
+]

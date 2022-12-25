@@ -28,12 +28,24 @@ pub enum Header {
     ETag,
     /// Last Modified
     LastModified,
+    ///
+    SecWebSocketAccept,
+    ///
+    SecWebSocketKey,
+    ///
+    SecWebSocketOrigin,
+    ///
+    SecWebSocketProtocol,
+    ///
+    SecWebSocketVersion,
     /// Server name
     Server,
     /// Cookies
     SetCookie,
     /// Encoding content
     TransferEncoding,
+    /// Upgrade
+    Upgrade,
     /// Accept Encoding
     Vary,
 }
@@ -56,10 +68,18 @@ impl Header {
             Header::Date => "Date",
             Header::ETag => "ETag",
             Header::LastModified => "Last-Modified",
+
+            Header::SecWebSocketAccept => "Sec-WebSocket-Accept",
+            Header::SecWebSocketKey => "Sec-WebSocket-Key",
+            Header::SecWebSocketOrigin => "Sec-WebSocket-Origin",
+            Header::SecWebSocketProtocol => "Sec-WebSocket-Protocol",
+            Header::SecWebSocketVersion => "Sec-WebSocket-Version",
+
             Header::Server => "Server",
             Header::SetCookie => "Set-Cookie",
 
             Header::TransferEncoding => "Transfer-Encoding",
+            Header::Upgrade => "Upgrade",
             Header::Vary => "Vary",
         }
     }

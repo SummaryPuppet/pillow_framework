@@ -7,8 +7,6 @@ use crate::http::http_methods::HttpMethods;
 use crate::http::request::Request;
 use crate::routing::routes::Routes;
 
-pub(crate) mod mock_test;
-
 pub async fn server_listen(port: String, routes: &Routes) {
     let listener: TcpListener = match TcpListener::bind(port).await {
         Ok(listener) => listener,

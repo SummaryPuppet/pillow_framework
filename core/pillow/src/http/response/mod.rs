@@ -283,6 +283,31 @@ impl Response {
 }
 
 impl Response {
+    pub(crate) fn websocket_upgrade_connection(&mut self) -> String {
+        self.set_status_code(StatusCode::Information(
+            status_code::Information::SwitchingProtocols,
+        ));
+
+        let status_line = self.get_status_line();
+
+        self.clear_headers();
+
+        self.add_multiple_headers(vec![
+            (Header::Upgrade, "websocket".to_string()),
+            (Header::Connection, "Upgrade".to_string()),
+            (Header::SecWebSocketAccept, "fwaeawgeegaw".to_string()),
+            (Header::SecWebSocketProtocol, "superchat".to_string()),
+        ]);
+
+        let headers = self.get_headers();
+
+        let response = format!("{}{}\r\n", status_line, headers);
+
+        response
+    }
+}
+
+impl Response {
     /// Add header to response
     ///
     /// # Arguments
@@ -338,6 +363,11 @@ impl Response {
         }
 
         res
+    }
+
+    /// Clear All headers
+    fn clear_headers(&mut self) {
+        self.headers = HashMap::new();
     }
 
     /// Get Status Line
