@@ -18,7 +18,7 @@
 //! In src/main.rs
 //!
 //! ```rust
-//! use pillow::routing::router::Router;
+//! use pillow::http::Router;
 //!
 //! #[async_std::main]
 //! fn main(){
@@ -43,35 +43,14 @@
 
 /// Database
 pub mod database;
-/// Env application for Pillow
-///
-/// * Env
-pub mod env;
-/// Errors
-mod error;
-/// File system
-mod fs;
-/// Http module
-///
-/// * request
-/// * response
-pub mod http;
-/// Routing
-///
-/// * router
-pub mod routing;
-/// Server
-mod server;
-/// Sessions
-mod session;
-/// Storage
-mod storage;
-/// Websocket module
-pub mod websocket;
 
-/*
-pub mod main {
-    pub use crate::http;
-    pub use crate::routing::router::Router;
+pub mod http {
+    pub use pillow_http::http_methods::HttpMethods;
+    pub use pillow_http::request::Request;
+    pub use pillow_http::response::Response;
+    pub use pillow_routing::router::Router;
 }
-*/
+
+pub use pillow_env as env;
+pub use pillow_fs as fs;
+pub use pillow_http::json;

@@ -6,12 +6,6 @@ Is a web framework for rust
 
 Add dependency
 
-```bash
-cargo add pillow
-```
-
-or
-
 ```toml
 [dependencies]
 pillow = "0.2.0"

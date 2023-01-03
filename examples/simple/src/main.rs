@@ -1,8 +1,17 @@
-use pillow::{json, routing::router::Router};
+use pillow::{
+    http::{Request, Response, Router},
+    json,
+};
+
+fn middle(request: &Request, _: &Response) {
+    println!("{:#?} {:#?}", request.method, request.path);
+}
 
 #[tokio::main]
 async fn main() {
     let mut app = Router::new();
+
+    app.add_middleware(middle);
 
     app.get("/", |_, mut response| response.view_hbs("index", json!({})));
 

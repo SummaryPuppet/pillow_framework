@@ -1,3 +1,9 @@
 [workspace]
 members = ["core/*", "examples/*"]
 
+[workspace.dependencies]
+pillow_http = { path = "./core/http" }
+pillow_fs = { path = "./core/fs" }
+pillow_env = { path = "./core/env" }
+pillow_routing = { path = "./core/routing" }
+pillow_templates = { path = "./core/templates" }
