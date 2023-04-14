@@ -18,20 +18,22 @@
 //! In src/main.rs
 //!
 //! ```rust
-//! use pillow::http::Router;
+//! use pillow::http::{MainRouter, Response};
 //!
-//! #[async_std::main]
+//! #[tokio::main]
 //! fn main(){
-//!     let mut app = Router::new();
+//!     let mut router= MainRouter::new();
 //!
-//!     app.get("/", |_, mut response| response.view("index"));
+//!     router.get("/", |_, | Response::view("index"));
 //!
-//!     app.post("/post", |request, response|{
+//!     router.post("/post", |request|{
 //!         println!("{:#?}", request);
-//!         response.text("hello")
+//!         Response::text("hello")
 //!     })
 //!
-//!     app.listen("5000").await;
+//!     let server = Server::new_port_personalized(3000).unwrap();
+//!
+//!     server.run(&router).await;
 //! }
 //! ```
 //!

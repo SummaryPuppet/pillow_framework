@@ -6,7 +6,6 @@
 
 mod route;
 mod router;
-pub(crate) mod routes;
 mod server;
 
 pub use router::MainRouter;

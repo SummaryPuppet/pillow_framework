@@ -11,8 +11,7 @@ pub struct Response {
     /// Response Headers
     headers: HashMap<Header, String>,
 
-    template_engine: Template,
-
+    // template_engine: Template,
     /// Cross Origin Site
     pub cors: String,
 
@@ -37,8 +36,7 @@ impl Response {
         Response {
             status_code: StatusCode::Successfull(status_code::Successfull::OK),
 
-            template_engine: Template::Html(""),
-
+            // template_engine: Template::Html(""),
             headers: HashMap::from([
                 (Header::Server, String::from("Pillow")),
                 (Header::ETag, String::from(r#""3314042""#)),
@@ -246,8 +244,6 @@ impl Response {
         ]);
 
         response.insert_content(txt.to_string());
-
-        println!("{:#?}", response);
 
         response
     }

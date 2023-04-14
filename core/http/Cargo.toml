@@ -20,8 +20,6 @@ regex = "1.7.0"
 serde = "1.0.159"
 serde_json = "1.0.91"
 handlebars = "4.3.6"
-hyper = { version = "1.0.0-rc.2", features = ["full"] }
-http-body-util = "0.1.0-rc.2"
 pillow-fs = { workspace = true, path = "../fs" }
 pillow-templates = { workspace = true, path = "../templates" }
 futures-util = "0.3.26"

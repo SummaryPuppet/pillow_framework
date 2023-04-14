@@ -6,7 +6,7 @@ async fn main() {
 
     router.get("/", |_req| Response::text("poto"));
 
-    let server = Server::new().unwrap();
+    let server = Server::new_port_default().unwrap();
 
     server.run(&router).await;
 }

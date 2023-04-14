@@ -1,3 +1,4 @@
+/// Body of http
 #[derive(Debug, Clone)]
 pub enum Body {
     JSON(String),

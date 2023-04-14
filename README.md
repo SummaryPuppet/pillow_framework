@@ -12,33 +12,20 @@ pillow = "0.2.0"
 tokio = {version = "1.23.0", features = ["full"]}
 ```
 
-### With Tokio
+## Simple Server
 
 ```rust
-use pillow::http::Router;
+use pillow::http::{MainRouter, Response};
 
 #[tokio::main]
 async fn main() {
-  let mut app = Router::new();
+  let mut router = MainRouter::new();
 
-  app.get("/", |request, response| response.view("index"));
+  router.get("/", |_request| Response::view("index"));
 
-  app.listen("5000").await;
-}
-```
+  let server = Server::new().unwrap();
 
-### With Async_std
-
-```rust
-use pillow::http::Router;
-
-#[async_std::main]
-async fn main() {
-  let mut app = Router::new();
-
-  app.get("/", |request, response| response.view("index"));
-
-  app.listen("5000").await;
+  server.run(&router).await:
 }
 ```
 

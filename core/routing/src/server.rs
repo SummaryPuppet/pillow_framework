@@ -1,14 +1,3 @@
-/*
-use colored::Colorize;
-use futures::{AsyncWriteExt, StreamExt};
-use pillow_http::middlewares::Middleware;
-use pillow_http::response::Response;
-
-use crate::routes::Routes;
-use pillow_http::http_methods::HttpMethods;
-use pillow_http::request::Request;
-*/
-
 use std::net::SocketAddr;
 
 use pillow_http::Request;
@@ -17,6 +6,7 @@ use tokio::{io::Interest, net::TcpListener};
 
 use crate::MainRouter;
 
+/// Server for you app
 #[derive(Debug)]
 pub struct Server {
     addr: [u8; 4],
@@ -26,11 +16,42 @@ pub struct Server {
 }
 
 impl Server {
-    pub fn new() -> Result<Self, std::io::Error> {
+    /// Instance of Server
+    /// with default port in 5000
+    pub fn new_port_default() -> Result<Self, std::io::Error> {
         let addr = [127, 0, 0, 1];
-        let port = 3000;
+        let port = 5000;
 
         let socket_addr = SocketAddr::from((addr, port));
+
+        let socket = tokio::net::TcpSocket::new_v4().unwrap();
+        match socket.bind(socket_addr) {
+            Ok(_) => {}
+            Err(_) => {
+                let socket_addr = SocketAddr::from((addr, port + 1));
+                socket.bind(socket_addr).unwrap();
+            }
+        };
+
+        let listener = socket.listen(1024)?;
+
+        Ok(Self {
+            addr,
+            port,
+            socket_addr,
+            listener,
+        })
+    }
+
+    /// Instance of Server
+    ///
+    /// # Arguments
+    ///
+    /// * port - port of your app
+    pub fn new_port_personalized(port: u16) -> Result<Self, std::io::Error> {
+        let addr = [127, 0, 0, 1];
+
+        let socket_addr = SocketAddr::from((addr, port.try_into().unwrap()));
 
         let socket = tokio::net::TcpSocket::new_v4().unwrap();
         match socket.bind(socket_addr) {
@@ -65,6 +86,11 @@ impl Server {
 }
 
 impl Server {
+    /// Run you Server
+    ///
+    /// # Arguments
+    ///
+    /// * router - You MainRouter
     pub async fn run(self, router: &MainRouter) {
         println!("Listening on http://{}", self.socket_addr);
 
@@ -80,10 +106,16 @@ struct Listener {
 }
 
 impl Listener {
+    /// Instance of Listener
     pub fn new(listener: TcpListener) -> Self {
         Self { listener }
     }
 
+    /// Listener listen new connections
+    ///
+    /// # Arguments
+    ///
+    /// * router - MainRouter
     pub async fn listen(
         &self,
         router: &MainRouter,
@@ -111,6 +143,7 @@ impl Listener {
         }
     }
 
+    /// Read data from stream and return a Request
     fn read_stream(mut _parser: Request, stream: &tokio::net::TcpStream) -> Request {
         let mut data = vec![0; 1024];
         // Try to read data, this may still fail with `WouldBlock`

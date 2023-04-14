@@ -20,17 +20,6 @@ pub struct Router {
 }
 
 impl Router {
-    /// Returns a new Router
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use pillow::http::Router;
-    ///
-    /// fn main(){
-    ///     let mut app = Router::new();
-    /// }
-    /// ```
     pub fn new() -> Router {
         Router {
             addr: String::from("127.0.0.1"),
@@ -43,116 +32,6 @@ impl Router {
 }
 
 /*
-impl Router {
-    /// Method get
-    /// # Arguments
-    ///
-    /// * `uri` - Path of route
-    /// * `controller` - Callback function
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use pillow::http::Router;
-    ///
-    /// fn main (){
-    ///     let mut app = Router::new();
-    ///
-    ///     app.get("/", |_, mut response| response.view("index"));
-    /// }
-    /// ```
-    pub fn get<F>(&mut self, uri: &str, controller: F)
-    where
-        F: Fn(Request, Response) -> String + Sync + Send + 'static,
-    {
-        let uri = String::from(uri);
-
-        self.routes.get.push(Route::new(uri, controller));
-    }
-
-    /// Method post
-    /// # Arguments
-    ///
-    /// * `uri` - Path of route
-    /// * `controller` - Callback function
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use pillow::http::Router;
-    ///
-    /// fn main(){
-    /// let mut app = Router::new();
-    ///
-    /// app.post("/", |request, response| {
-    ///     println("{:#?}", request);
-    ///
-    ///     response.text("hello world")
-    /// });
-    /// }
-    /// ```
-    pub fn post<F>(&mut self, uri: &str, controller: F)
-    where
-        F: Fn(Request, Response) -> String + Sync + Send + 'static,
-    {
-        let uri = String::from(uri);
-
-        self.routes.post.push(Route::new(uri, controller));
-    }
-
-    /// Method put
-    /// # Arguments
-    ///
-    /// * `uri` - Path of route
-    /// * `controller` - Callback function
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use pillow::http::Router;
-    ///
-    /// fn main (){
-    /// let mut app = Router::new();
-    ///
-    /// app.put("/", |request, response| response.text("index"));
-    /// }
-    /// ```
-    pub fn put<F>(&mut self, uri: &str, controller: F)
-    where
-        F: Fn(Request, Response) -> String + Sync + Send + 'static,
-    {
-        let uri = String::from(uri);
-
-        self.routes.put.push(Route::new(uri, controller));
-    }
-
-    /// Method delete
-    /// # Arguments
-    ///
-    /// * `uri` - Path of route
-    /// * `controller` - Callback function
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use pillow::http::Router;
-    ///
-    /// fn main (){
-    /// let mut app = Router::new();
-    ///
-    /// app.delete("/", |request, mut response| response.view("index"));
-    /// }
-    /// ```
-    pub fn delete<F>(&mut self, uri: &str, controller: F)
-    where
-        F: Fn(Request, Response) -> String + Sync + Send + 'static,
-    {
-        let uri = String::from(uri);
-
-        self.routes.delete.push(Route::new(uri, controller));
-    }
-}
-
 impl Router {
     pub fn get_struct<T: Handler + std::fmt::Debug>(&mut self, uri: &str, controller: T) {
         println!("{}", uri);
@@ -176,17 +55,20 @@ impl Router {
 
 */*/
 
+/// The Main router in your app
 pub struct MainRouter {
     routes: HashMap<pillow_http::http_methods::HttpMethods, Vec<Route>>,
 }
 
 impl MainRouter {
+    /// Instance of a router
     pub fn new() -> Self {
         Self {
             routes: HashMap::new(),
         }
     }
 
+    /// Reference of routes
     pub fn routes(&self) -> &HashMap<pillow_http::http_methods::HttpMethods, Vec<Route>> {
         &self.routes
     }
@@ -202,7 +84,7 @@ impl MainRouter {
         routes_vec.iter().position(|route| route.uri() == uri)
     }
 
-    pub fn routing(&self, request: &Request) -> Response {
+    pub(crate) fn routing(&self, request: &Request) -> Response {
         let option_routes_vec = self.get_routes_from_method(request.method());
 
         let routes_vec = match option_routes_vec {
@@ -251,6 +133,25 @@ impl MainRouter {
 }
 
 impl MainRouter {
+    /// Method POST
+    /// # Arguments
+    ///
+    /// * `uri` - Path of route
+    /// * `controller` - Callback function
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use pillow::http::{MainRouter, Response};
+    ///
+    ///
+    /// #[tokio::main]
+    /// async fn main (){
+    ///     let mut router = MainRouter::new();
+    ///
+    ///     router.get("/", |_, | Response::view("index"));
+    /// }
+    /// ```
     pub fn get<F>(&mut self, uri: &str, controller: F)
     where
         F: Fn(Request) -> Response + Sync + Send + 'static,
@@ -259,6 +160,102 @@ impl MainRouter {
 
         self.routes
             .entry(pillow_http::http_methods::HttpMethods::GET)
+            .or_insert(Vec::new())
+            .push(Route::new(uri, controller));
+    }
+
+    /// Method POST
+    /// # Arguments
+    ///
+    /// * `uri` - Path of route
+    /// * `controller` - Callback function
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use pillow::http::{MainRouter, Response};
+    ///
+    ///
+    /// #[tokio::main]
+    /// async fn main (){
+    ///     let mut router = MainRouter::new();
+    ///
+    ///     router.post("/", |_, | Response::view("index"));
+    /// }
+    /// ```
+    pub fn post<F>(&mut self, uri: &str, controller: F)
+    where
+        F: Fn(Request) -> Response + Sync + Send + 'static,
+    {
+        let uri = uri.to_string();
+        let method = pillow_http::http_methods::HttpMethods::POST;
+
+        self.routes
+            .entry(method)
+            .or_insert(Vec::new())
+            .push(Route::new(uri, controller));
+    }
+
+    /// Method PUT
+    /// # Arguments
+    ///
+    /// * `uri` - Path of route
+    /// * `controller` - Callback function
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use pillow::http::{MainRouter, Response};
+    ///
+    ///
+    /// #[tokio::main]
+    /// async fn main (){
+    ///     let mut router = MainRouter::new();
+    ///
+    ///     router.put("/", |_, | Response::view("index"));
+    /// }
+    /// ```
+    pub fn put<F>(&mut self, uri: &str, controller: F)
+    where
+        F: Fn(Request) -> Response + Sync + Send + 'static,
+    {
+        let uri = uri.to_string();
+        let method = pillow_http::http_methods::HttpMethods::PUT;
+
+        self.routes
+            .entry(method)
+            .or_insert(Vec::new())
+            .push(Route::new(uri, controller));
+    }
+
+    /// Method DELETE
+    /// # Arguments
+    ///
+    /// * `uri` - Path of route
+    /// * `controller` - Callback function
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use pillow::http::{MainRouter, Response};
+    ///
+    ///
+    /// #[tokio::main]
+    /// async fn main (){
+    ///     let mut router = MainRouter::new();
+    ///
+    ///     router.delete("/", |_, | Response::view("index"));
+    /// }
+    /// ```
+    pub fn delete<F>(&mut self, uri: &str, controller: F)
+    where
+        F: Fn(Request) -> Response + Sync + Send + 'static,
+    {
+        let uri = uri.to_string();
+        let method = pillow_http::http_methods::HttpMethods::DELETE;
+
+        self.routes
+            .entry(method)
             .or_insert(Vec::new())
             .push(Route::new(uri, controller));
     }

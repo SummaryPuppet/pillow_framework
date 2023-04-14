@@ -6,6 +6,7 @@ use crate::uri::Uri;
 
 use crate::body::Body;
 
+/// Request
 #[derive(Debug, Clone)]
 pub struct Request {
     method: HttpMethods,
@@ -17,6 +18,7 @@ pub struct Request {
 }
 
 impl Request {
+    /// Instance empty Request
     pub fn new_empty() -> Self {
         Self {
             method: HttpMethods::GET,
@@ -56,6 +58,11 @@ impl Request {
 }
 
 impl Request {
+    /// Create a Request from &Vec<u8>
+    ///
+    /// # Arguments
+    ///
+    /// * data - Is a data from a stream
     pub fn from_vec(data: &Vec<u8>) -> Result<Request, std::str::Utf8Error> {
         let request_str_full = Self::from_vec_to_str(data)?;
 
@@ -83,6 +90,13 @@ impl Request {
         })
     }
 
+    /// Create a body from a Vec<&str>
+    ///
+    /// # Arguments
+    ///
+    /// * header_vec - All header in a request
+    ///
+    /// * lenght - body lenght
     fn get_body(headers_vec: Vec<&str>, lenght: usize) -> crate::body::Body {
         let mut body_vec: Vec<Vec<&str>> = headers_vec.chunks(lenght).map(|x| x.into()).collect();
         body_vec.remove(0);
@@ -102,12 +116,18 @@ impl Request {
         crate::body::from_string_to_body(body.to_string())
     }
 
+    /// Remove a 0 in last part from request
+    ///
+    /// # Arguments
+    ///
+    /// * string - String where delete 0
     fn remove_0(string: &String) -> &str {
         let vec_str: Vec<&str> = string.split("\0").collect();
 
         vec_str[0]
     }
 
+    /// Get a headers
     fn get_headers(headers_vec: &mut Vec<&str>) -> HashMap<Header, String> {
         headers_vec.remove(0);
 
@@ -132,22 +152,26 @@ impl Request {
         header_hash_map
     }
 
+    /// Separate method, uri, version from a all string request
     fn separate_method_uri_version(header: &str) -> (&str, &str, &str) {
         let header_vec: Vec<&str> = header.split_whitespace().collect();
 
         (header_vec[0], header_vec[1], header_vec[2])
     }
 
+    /// Convert data to Result of &str is a request
     fn from_vec_to_str(data: &Vec<u8>) -> Result<&str, std::str::Utf8Error> {
         std::str::from_utf8(data)
     }
 
+    /// Convert &str to Uri struct
     fn get_uri(uri_str: &str) -> Uri {
         let uri_vec: Vec<&str> = uri_str.split("?").collect();
 
         Uri(uri_vec[0].to_string())
     }
 
+    /// Get params in the uri
     fn get_params(uri: &str) -> Option<HashMap<String, String>> {
         let mut params_vec: Vec<&str> = uri.split("?").collect();
         let mut params_hash_map = HashMap::new();
