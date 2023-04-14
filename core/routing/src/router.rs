@@ -1,16 +1,18 @@
-use std::process;
+// use std::process;
 
-use colored::Colorize;
+// use colored::Colorize;
 
-use super::{route::Route, routes::Routes};
+use std::collections::HashMap;
 
-use crate::server::server_listen;
-use pillow_env::Env;
-use pillow_http::{middlewares::Middleware, request::Request, response::Response};
+use super::route::Route;
 
+// use pillow_env::Env;
+use pillow_http::{handler::Handler, middlewares::Middleware, Request, Response};
+
+/*
 /// Instance of Router
 pub struct Router {
-    addr: String,
+    pub addr: String,
 
     middlewares: Vec<Middleware>,
 
@@ -40,6 +42,7 @@ impl Router {
     }
 }
 
+/*
 impl Router {
     /// Method get
     /// # Arguments
@@ -151,6 +154,18 @@ impl Router {
 }
 
 impl Router {
+    pub fn get_struct<T: Handler + std::fmt::Debug>(&mut self, uri: &str, controller: T) {
+        println!("{}", uri);
+        println!("{:#?}", controller);
+    }
+}
+
+impl Router {
+    /// Add a global middleware
+    ///
+    /// # Arguments
+    ///
+    /// * `controller` - Function for middleware
     pub fn add_middleware<F>(&mut self, controller: F)
     where
         F: Fn(&Request, &Response) + 'static,
@@ -159,47 +174,92 @@ impl Router {
     }
 }
 
-impl Router {
-    /// Method for listen in port argument
-    ///
-    /// # Arguments
-    ///
-    /// * `port` - A string slice that port
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use pillow::http::Router;
-    ///
-    /// #[async_std::main]
-    /// async fn main(){
-    /// let mut app = Router::new();
-    ///
-    /// app.listen("5000").await;
-    /// }
-    /// ```
-    pub async fn listen(&self, port: &str) {
-        if !Env::is_var_exist("APP_DEBUG".to_string()) {
-            process::Command::new("clear").status().unwrap();
+*/*/
+
+pub struct MainRouter {
+    routes: HashMap<pillow_http::http_methods::HttpMethods, Vec<Route>>,
+}
+
+impl MainRouter {
+    pub fn new() -> Self {
+        Self {
+            routes: HashMap::new(),
+        }
+    }
+
+    pub fn routes(&self) -> &HashMap<pillow_http::http_methods::HttpMethods, Vec<Route>> {
+        &self.routes
+    }
+
+    fn get_routes_from_method(
+        &self,
+        method: &pillow_http::http_methods::HttpMethods,
+    ) -> Option<&Vec<Route>> {
+        self.routes.get(&method)
+    }
+
+    fn get_option_index(&self, uri: &pillow_http::Uri, routes_vec: &Vec<Route>) -> Option<usize> {
+        routes_vec.iter().position(|route| route.uri() == uri)
+    }
+
+    pub fn routing(&self, request: &Request) -> Response {
+        let option_routes_vec = self.get_routes_from_method(request.method());
+
+        let routes_vec = match option_routes_vec {
+            Some(routes) => routes,
+            None => panic!("Routes empty"),
+        };
+
+        let option_index = self.get_option_index(request.uri(), &routes_vec);
+
+        let mut response = Response::new_empty();
+
+        match option_index {
+            Some(index) => {
+                let route_m = &routes_vec[index];
+
+                response = route_m.use_controller(request.clone())
+            }
+            None => {
+                let routes_params: Vec<_> = routes_vec
+                    .iter()
+                    .filter(|route| route.has_parameters())
+                    .collect();
+
+                for route in routes_params {
+                    let path: Vec<_> = route
+                        .regex_complete
+                        .split(&route.uri().0.as_str())
+                        .collect();
+
+                    let path_param: Vec<_> = route
+                        .regex_words
+                        .find_iter(&request.uri().0.as_str())
+                        .collect();
+
+                    if request.uri().0.starts_with(path[0]) {
+                        let route_m = route;
+
+                        response = route_m.use_controller(request.clone());
+                    }
+                }
+            }
         }
 
-        let port_complete = format!("{}:{}", &self.addr, &port);
-        let http = format!("http://{}", &port_complete);
-
-        println!("Pillow on: [{}]", http.green());
-
-        let routes = &self.routes;
-        let middlewares = &self.middlewares;
-
-        server_listen(port_complete, &routes, &middlewares).await;
+        response
     }
 }
 
-#[macro_export]
-macro_rules! pillow_create_server {
-    () => {{
-        let app = Router::new();
+impl MainRouter {
+    pub fn get<F>(&mut self, uri: &str, controller: F)
+    where
+        F: Fn(Request) -> Response + Sync + Send + 'static,
+    {
+        let uri = uri.to_string();
 
-        app
-    }};
+        self.routes
+            .entry(pillow_http::http_methods::HttpMethods::GET)
+            .or_insert(Vec::new())
+            .push(Route::new(uri, controller));
+    }
 }

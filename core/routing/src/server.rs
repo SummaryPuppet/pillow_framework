@@ -1,5 +1,4 @@
-use async_std::io::{Read, Write};
-use async_std::{io::ReadExt, net::TcpListener};
+/*
 use colored::Colorize;
 use futures::{AsyncWriteExt, StreamExt};
 use pillow_http::middlewares::Middleware;
@@ -8,80 +7,123 @@ use pillow_http::response::Response;
 use crate::routes::Routes;
 use pillow_http::http_methods::HttpMethods;
 use pillow_http::request::Request;
+*/
 
-pub async fn server_listen(port: String, routes: &Routes, middlewares: &Vec<Middleware>) {
-    let listener: TcpListener = match TcpListener::bind(port).await {
-        Ok(listener) => listener,
-        Err(error) => panic!("{} {}", "Pillow-TcpListener".red(), error),
-    };
+use std::net::SocketAddr;
 
-    listener
-        .incoming()
-        .for_each_concurrent(None, |stream| async move {
-            let stream = stream.unwrap();
+use pillow_http::Request;
 
-            handle_connection(stream, &routes, &middlewares).await
-            // async_std::task::spawn(handle_connection(stream, &routes));
-        })
-        .await
+use tokio::{io::Interest, net::TcpListener};
+
+use crate::MainRouter;
+
+#[derive(Debug)]
+pub struct Server {
+    addr: [u8; 4],
+    port: u16,
+    socket_addr: SocketAddr,
+    listener: TcpListener,
 }
 
-async fn handle_connection(
-    mut stream: impl Read + Write + Unpin,
-    routes: &Routes,
-    middlewares: &Vec<Middleware>,
-) {
-    let mut buffer = [0; 1024];
+impl Server {
+    pub fn new() -> Result<Self, std::io::Error> {
+        let addr = [127, 0, 0, 1];
+        let port = 3000;
 
-    match stream.read(&mut buffer).await {
-        Ok(_) => {}
-        Err(error) => panic!("{} {}", "Pillow-TcpStream".red(), error),
-    };
+        let socket_addr = SocketAddr::from((addr, port));
 
-    let mut request = Request::new(&buffer);
-    let response = Response::new();
-
-    for middleware in middlewares {
-        middleware.use_middleware(&request, &response)
-    }
-
-    let res = match request.method {
-        HttpMethods::GET => &routes.get,
-        HttpMethods::POST => &routes.post,
-        HttpMethods::PUT => &routes.put,
-        HttpMethods::DELETE => &routes.delete,
-    };
-
-    let mut r = String::new();
-
-    match res.iter().position(|route| route.url == request.path) {
-        Some(index) => {
-            let route = &res[index];
-            r = route.use_controller(request);
-        }
-        None => {
-            let routes_params: Vec<_> = res.iter().filter(|route| route.has_parameters()).collect();
-
-            for route in routes_params {
-                let path: Vec<_> = route.regex_complete.split(&route.url).collect();
-
-                let path_param: Vec<_> = route.regex_words.find_iter(&request.path).collect();
-                let request_param = path_param[1].as_str();
-
-                if request.path.starts_with(path[0]) {
-                    request.add_param(
-                        route.get_parameters()[0].to_owned(),
-                        request_param.to_string(),
-                    );
-
-                    r = route.use_controller(request);
-
-                    break;
-                }
+        let socket = tokio::net::TcpSocket::new_v4().unwrap();
+        match socket.bind(socket_addr) {
+            Ok(_) => {}
+            Err(_) => {
+                let socket_addr = SocketAddr::from((addr, port + 1));
+                socket.bind(socket_addr).unwrap();
             }
+        };
+
+        let listener = socket.listen(1024)?;
+
+        Ok(Self {
+            addr,
+            port,
+            socket_addr,
+            listener,
+        })
+    }
+
+    pub fn addr(&self) -> &[u8; 4] {
+        &self.addr
+    }
+
+    pub fn port(&self) -> &u16 {
+        &self.port
+    }
+
+    pub fn socket_addr(&self) -> &SocketAddr {
+        &self.socket_addr
+    }
+}
+
+impl Server {
+    pub async fn run(self, router: &MainRouter) {
+        println!("Listening on http://{}", self.socket_addr);
+
+        let listener = Listener::new(self.listener);
+
+        listener.listen(&router).await.unwrap();
+    }
+}
+
+/// Listener http
+struct Listener {
+    listener: TcpListener,
+}
+
+impl Listener {
+    pub fn new(listener: TcpListener) -> Self {
+        Self { listener }
+    }
+
+    pub async fn listen(
+        &self,
+        router: &MainRouter,
+    ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+        loop {
+            let (stream, _client_addr) = self.listener.accept().await?;
+
+            let ready_readable = stream.ready(Interest::READABLE).await.unwrap();
+            let ready_writable = stream.ready(Interest::WRITABLE).await.unwrap();
+
+            let mut request: Request = Request::new_empty();
+
+            if ready_readable.is_readable() {
+                request = Self::read_stream(request, &stream);
+            };
+
+            if ready_writable.is_writable() {
+                let response = router.routing(&request);
+
+                match stream.try_write(response.to_string().as_bytes()) {
+                    Ok(_) => {}
+                    Err(e) => panic!("{}", e),
+                };
+            };
         }
     }
 
-    stream.write_all(r.as_bytes()).await.unwrap();
-    stream.flush().await.unwrap();
+    fn read_stream(mut _parser: Request, stream: &tokio::net::TcpStream) -> Request {
+        let mut data = vec![0; 1024];
+        // Try to read data, this may still fail with `WouldBlock`
+        // if the readiness event is a false positive.
+        match stream.try_read(&mut data) {
+            Ok(_) => {
+                _parser = Request::from_vec(&data).unwrap();
+
+                return _parser;
+            }
+            Err(e) => {
+                panic!("{}", e);
+            }
+        };
+    }
 }

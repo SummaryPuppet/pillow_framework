@@ -1,9 +1,9 @@
-pub mod header;
+use crate::header;
 pub mod static_files;
-mod status_code;
-mod view;
+pub mod status_code;
 
 /// Response to client
+#[derive(Debug)]
 pub struct Response {
     /// Like 200 OK
     status_code: StatusCode,
@@ -15,6 +15,8 @@ pub struct Response {
 
     /// Cross Origin Site
     pub cors: String,
+
+    content: String,
 }
 
 use std::collections::HashMap;
@@ -27,12 +29,11 @@ use pillow_templates::Template;
 use self::{
     header::Header,
     status_code::{AsStr, StatusCode},
-    view::View,
 };
 
 impl Response {
     /// Returns a new Response
-    pub fn new() -> Response {
+    pub fn new_empty() -> Response {
         Response {
             status_code: StatusCode::Successfull(status_code::Successfull::OK),
 
@@ -40,19 +41,12 @@ impl Response {
 
             headers: HashMap::from([
                 (Header::Server, String::from("Pillow")),
-                (Header::Date, String::new()),
                 (Header::ETag, String::from(r#""3314042""#)),
-                (Header::LastModified, String::new()),
-                (Header::AccessControlAllowOrigin, String::new()),
-                (Header::CacheControl, String::from("public, max-age=0")),
-                (Header::ContentType, String::new()),
-                (
-                    Header::ContentSegurityPolicy,
-                    String::from("default-src https:"),
-                ),
             ]),
 
             cors: String::from("*"),
+
+            content: String::new(),
         }
     }
 }
@@ -73,16 +67,16 @@ impl Response {
     ///
     /// app.get("/", |_, mut response| response.view("index"));
     /// ```
-    pub fn view(&mut self, page: &'static str) -> String {
-        let status_line = &self.get_status_line();
+    pub fn view(page: &'static str) -> Response {
+        let mut response = Self::new_empty();
 
         let html = Template::Html(page);
         let contents = html.render();
 
         let date = crate::get_date_now!();
 
-        self.add_multiple_headers(vec![
-            (Header::AccessControlAllowOrigin, self.cors.to_string()),
+        response.add_multiple_headers(vec![
+            (Header::AccessControlAllowOrigin, response.cors.to_string()),
             (Header::Connection, "Keep-Alive".to_string()),
             (Header::ContentLength, contents.len().to_string()),
             (Header::ContentType, "text/html; charset=utf-8".to_string()),
@@ -90,8 +84,7 @@ impl Response {
             (Header::LastModified, date.to_string()),
         ]);
 
-        let headers = self.get_headers();
-        let response = format!("{status_line}{headers}\r\n\r\n{contents}");
+        response.insert_content(contents);
 
         response
     }
@@ -115,16 +108,18 @@ impl Response {
     ///     response.view_hbs("index", json!({"name": "foo"}))
     /// });
     /// ```
-    pub fn view_hbs(&mut self, page: &'static str, data: Value) -> String {
-        let status_line = &self.get_status_line();
+    pub fn view_hbs(page: &'static str, data: Value) -> Response {
+        let mut response = Self::new_empty();
+
+        let status_line = response.get_status_line();
 
         let hbs = Template::Handlebars(page, data);
         let contents = hbs.render();
 
         let date = crate::get_date_now!();
 
-        self.add_multiple_headers(vec![
-            (Header::AccessControlAllowOrigin, self.cors.to_string()),
+        response.add_multiple_headers(vec![
+            (Header::AccessControlAllowOrigin, response.cors.to_string()),
             (Header::Connection, "Keep-Alive".to_string()),
             (Header::ContentLength, contents.len().to_string()),
             (Header::ContentType, "text/html; charset=utf-8".to_string()),
@@ -132,8 +127,7 @@ impl Response {
             (Header::LastModified, date.to_string()),
         ]);
 
-        let headers = self.get_headers();
-        let response = format!("{status_line}{headers}\r\n\r\n{contents}");
+        response.insert_content(contents);
 
         response
     }
@@ -160,13 +154,14 @@ impl Response {
     ///
     ///    response.json(json)
     /// ```
-    pub fn json(&mut self, js: Value) -> String {
-        let status_line = &self.get_status_line();
+    pub fn json(js: Value) -> Response {
+        let mut response = Self::new_empty();
+
         let date = crate::get_date_now!();
         let json = js.to_string();
 
-        self.add_multiple_headers(vec![
-            (Header::AccessControlAllowOrigin, self.cors.to_string()),
+        response.add_multiple_headers(vec![
+            (Header::AccessControlAllowOrigin, response.cors.to_string()),
             (Header::AcceptRanges, "bytes".to_string()),
             (Header::ContentLength, json.len().to_string()),
             (
@@ -178,8 +173,7 @@ impl Response {
             (Header::Vary, "Accept-Encoding".to_string()),
         ]);
 
-        let res = self.get_headers();
-        let response = format!("{status_line}{res}\r\n\r\n{js}");
+        response.insert_content(json);
 
         response
     }
@@ -204,15 +198,16 @@ impl Response {
     /// }
     /// "#));
     /// ```
-    pub fn json_from_str(&mut self, json: &str) -> String {
-        let status_line = &self.get_status_line();
+    pub fn json_from_str(json: &str) -> Response {
+        let mut response = Self::new_empty();
+
         let date = crate::get_date_now!();
 
         let json_value: Value = serde_json::from_str(json).unwrap();
         let js = json_value.to_string();
 
-        self.add_multiple_headers(vec![
-            (Header::AccessControlAllowOrigin, self.cors.to_string()),
+        response.add_multiple_headers(vec![
+            (Header::AccessControlAllowOrigin, response.cors.to_string()),
             (Header::AcceptRanges, "bytes".to_string()),
             (Header::ContentLength, js.len().to_string()),
             (
@@ -224,8 +219,8 @@ impl Response {
             (Header::Vary, "Accept-Encoding".to_string()),
         ]);
 
-        let res = self.get_headers();
-        let response = format!("{status_line}{res}\r\n\r\n{js}");
+        // let response = format!("{status_line}{res}\r\n\r\n{js}");
+        response.insert_content(js);
 
         response
     }
@@ -239,11 +234,20 @@ impl Response {
     ///     app.get("/", |_, response| response.text("hello"));
     /// }
     /// ```
-    pub fn text(&self, txt: &str) -> String {
-        let status_line = &self.get_status_line();
+    pub fn text(txt: &str) -> Response {
+        let mut response = Self::new_empty();
+
         let length = txt.len();
 
-        let response = format!("{status_line}/r\nServer: Pillow\r\nAccess-Control-Allow-Origin: {}\r\nContent-Type: text/plain\r\nContent-Length: {length}\r\n\r\n{txt}", self.cors);
+        response.add_multiple_headers(vec![
+            (Header::AccessControlAllowOrigin, response.cors.to_string()),
+            (Header::ContentType, "text/plain".to_string()),
+            (Header::ContentLength, length.to_string()),
+        ]);
+
+        response.insert_content(txt.to_string());
+
+        println!("{:#?}", response);
 
         response
     }
@@ -295,6 +299,23 @@ impl Response {
         let response = format!("{status_line}{headers}\r\n\r\n{js}");
 
         response
+    }
+}
+
+impl Response {
+    pub fn to_string(&self) -> String {
+        let res = format!(
+            "{}{}\r\n\r\n{}",
+            &self.get_status_line(),
+            &self.get_headers(),
+            &self.content
+        );
+
+        res
+    }
+
+    pub fn insert_content(&mut self, content: String) {
+        self.content = content
     }
 }
 

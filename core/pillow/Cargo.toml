@@ -1,38 +1,33 @@
 [package]
 name = "pillow"
-version = "0.2.3"
-edition = "2021"
-authors = ["SummaryPuppet"]
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
 description = "A web framework for rust"
-keywords = ["web", "backend"]
-categories = ["web-programming::http-server"]
-license-file = "LICENSE"
-homepage = "https://github.com/SummaryPuppet/pillow_framework"
-documentation = "https://github.com/SummaryPuppet/pillow_framework"
-repository = "https://github.com/SummaryPuppet/pillow_framework"
-readme = "README.md"
+keywords.workspace = true
+categories.workspace = true
+license-file = "../../LICENSE"
+homepage.workspace = true
+documentation.workspace = true
+repository.workspace = true
+readme.workspace = true
 publish = true
 exclude = ["/resources", "/public"]
 
+[lib]
+name = "pillow"
+path = "src/lib.rs"
 
+[features]
+full = ["env", "fs", "templates"]
+env = ["pillow-env"]
+fs = ["pillow-fs"]
+templates = ["pillow-templates"]
 
 [dependencies]
-mysql = "23.0.0"
-postgres = "0.19.4"
-serde = "1.0.148"
-serde_json = "1.0.89"
-pillow_http = { workspace = true, default-features = false, path = "../http" }
-pillow_routing = { workspace = true, path = "../routing" }
-pillow_fs = { workspace = true, path = "../fs" }
-pillow_env = { workspace = true, path = "../env" }
-colored = "2.0.0"
+pillow-http = { workspace = true, default-features = false, path = "../http" }
+pillow-routing = { workspace = true, path = "../routing" }
+pillow-fs = { workspace = true, optional = true,path = "../fs" }
+pillow-env = { workspace = true, optional = true, path = "../env" }
+pillow-templates = { workspace = true, optional = true, path = "../templates" }
 
-[dependencies.async-std]
-version = "1.6"
-features = ["attributes"]
-
-[dependencies.uuid]
-version = "1.2.2"
-features = [
-    "v4",
-]

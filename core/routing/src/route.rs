@@ -2,19 +2,26 @@ use std::fmt;
 
 use regex::Regex;
 
-use pillow_http::{controller::Controller, request::Request, response::Response};
+use pillow_http::{controller::Controller, Request, Response};
 
 /// Instance of Route
 pub struct Route {
     /// url path
-    pub url: String,
+    uri: pillow_http::Uri,
     /// Controller Callback Function
     controller: Controller,
     /// Parameters
     params: Vec<String>,
+
     /// Regex
     pub regex_complete: Regex,
     pub regex_words: Regex,
+}
+
+impl Route {
+    pub fn uri(&self) -> &pillow_http::Uri {
+        &self.uri
+    }
 }
 
 impl Route {
@@ -26,7 +33,7 @@ impl Route {
     /// * `controller` - Callback function
     pub fn new<F>(url: String, controller: F) -> Route
     where
-        F: Fn(Request, Response) -> String + Sync + Send + 'static,
+        F: Fn(Request) -> Response + Sync + Send + 'static,
     {
         let action = Controller::new(controller);
         let re = Regex::new(r"(<[a-zA-Z]+>)").unwrap();
@@ -47,7 +54,7 @@ impl Route {
         };
 
         Route {
-            url,
+            uri: pillow_http::Uri(url),
             controller: action,
             params,
             regex_complete: re,
@@ -71,19 +78,19 @@ impl Route {
     }
 
     /// Controller
-    pub(crate) fn use_controller(&self, request: Request) -> String {
+    pub(crate) fn use_controller(&self, request: Request) -> Response {
         self.controller.use_action(request)
     }
 }
 
 impl fmt::Display for Route {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", &self.url)
+        write!(f, "{}", &self.uri)
     }
 }
 
 impl fmt::Debug for Route {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("Route").field("url", &self.url).finish()
+        f.debug_struct("Route").field("url", &self.uri).finish()
     }
 }

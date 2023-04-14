@@ -1,16 +1,22 @@
 [package]
-name = "pillow_routing"
-version = "0.1.0"
-edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+name = "pillow-routing"
+description = "Routin in Pillow"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license = "MIT"
+readme = "./README.md"
+homepage.workspace = true
+documentation.workspace = true
+repository.workspace = true
 
 [dependencies]
 regex = "1.7.0"
 colored = "2.0.0"
 futures = "0.3.25"
-pillow_http = { path = "../http" }
-pillow_env = { path = "../env" }
+tokio = { version = "1", features = ["full"] }
+pillow-http = { workspace = true, path = "../http" }
+pillow-env = { workspace = true, path = "../env" }
 
 [dependencies.async-std]
 version = "1.6"

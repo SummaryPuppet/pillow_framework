@@ -1,9 +1,15 @@
 [package]
-name = "pillow_env"
-version = "0.1.0"
-edition = "2021"
+name = "pillow-env"
+description = ".env file for use in pillow"
+authors.workspace = true
+version.workspace = true
+edition.workspace = true
+license = "MIT"
+readme = "./README.md"
+homepage.workspace = true
+documentation.workspace = true
+repository.workspace = true
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 dotenv = "0.15.0"

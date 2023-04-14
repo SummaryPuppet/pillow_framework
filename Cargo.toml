@@ -1,9 +1,22 @@
 [workspace]
 members = ["core/*", "examples/*"]
 
+[workspace.package]
+version = "0.4.0"
+authors = ["SummaryPuppet"]
+edition = "2021"
+keywords = ["web", "backend"]
+license-file = "LISENCE"
+categories = ["web:programming::http-server"]
+readme = "./README.md"
+homepage = "https://github.com/SummaryPuppet/pillow_framework"
+documentation = "https://github.com/SummaryPuppet/pillow_framework"
+repository = "https://github.com/SummaryPuppet/pillow_framework"
+
 [workspace.dependencies]
-pillow_http = { path = "./core/http" }
-pillow_fs = { path = "./core/fs" }
-pillow_env = { path = "./core/env" }
-pillow_routing = { path = "./core/routing" }
-pillow_templates = { path = "./core/templates" }
+pillow-http = { version = "0.3.0", path = "./core/http" }
+pillow-fs = { version = "0.3.0", path = "./core/fs" }
+pillow-env = { version = "0.3.0", path = "./core/env" }
+pillow-routing = { version = "0.3.0", path = "./core/routing" }
+pillow-templates = { version = "0.3.0", path = "./core/templates" }
+pillow-database = { version = "0.3.0", path = "./core/database" }

@@ -41,16 +41,19 @@
 //! $ Server on 127.0.0.1:5000
 //! ```
 
-/// Database
-pub mod database;
-
 pub mod http {
+    pub use pillow_http::handler::Handler;
     pub use pillow_http::http_methods::HttpMethods;
-    pub use pillow_http::request::Request;
-    pub use pillow_http::response::Response;
-    pub use pillow_routing::router::Router;
+    pub use pillow_http::Request;
+    pub use pillow_http::Response;
+    pub use pillow_routing::MainRouter;
+    pub use pillow_routing::Server;
 }
 
+#[cfg(feature = "template")]
+pub use pillow_templates as template;
+
+#[cfg(feature = "env")]
 pub use pillow_env as env;
+#[cfg(feature = "fs")]
 pub use pillow_fs as fs;
-pub use pillow_http::json;

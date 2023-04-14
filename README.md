@@ -15,11 +15,11 @@ tokio = {version = "1.23.0", features = ["full"]}
 ### With Tokio
 
 ```rust
-use pillow::http::router::Router;
+use pillow::http::Router;
 
 #[tokio::main]
 async fn main() {
-  let app = Router::new();
+  let mut app = Router::new();
 
   app.get("/", |request, response| response.view("index"));
 
@@ -30,11 +30,11 @@ async fn main() {
 ### With Async_std
 
 ```rust
-use pillow::http::router::Router;
+use pillow::http::Router;
 
 #[async_std::main]
 async fn main() {
-  let app = Router::new();
+  let mut app = Router::new();
 
   app.get("/", |request, response| response.view("index"));
 
@@ -52,17 +52,3 @@ MIT Lincese
 
 ## Contribution
 
-### For developers
-
-clone project
-
-```bash
-git clone github.com/SummaryPuppet/pillow_framework.git
-cd pillow_framework
-```
-
-and execute
-
-```bash
-cargo run
-```

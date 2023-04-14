@@ -5,6 +5,9 @@
 //! ```
 
 mod route;
-pub mod router;
+mod router;
 pub(crate) mod routes;
 mod server;
+
+pub use router::MainRouter;
+pub use server::Server;

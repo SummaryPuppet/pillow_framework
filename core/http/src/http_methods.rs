@@ -1,4 +1,4 @@
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
 pub enum HttpMethods {
     GET,
     POST,
@@ -14,5 +14,16 @@ impl HttpMethods {
             HttpMethods::PUT => "PUT",
             HttpMethods::DELETE => "DELETE",
         }
+    }
+}
+
+pub fn get_method_from_str(method_str: &str) -> HttpMethods {
+    match method_str {
+        "GET" => HttpMethods::GET,
+        "POST" => HttpMethods::POST,
+        "PUT" => HttpMethods::PUT,
+        "DELETE" => HttpMethods::DELETE,
+
+        _ => HttpMethods::GET,
     }
 }

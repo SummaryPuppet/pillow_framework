@@ -6,6 +6,7 @@ use tera::Tera;
 pub use tera::Context;
 
 /// Templates options in Pillow
+#[derive(Debug, Clone)]
 pub enum Template {
     /// Render Html
     ///
