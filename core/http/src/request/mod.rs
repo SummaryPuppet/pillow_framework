@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::fmt;
 
 use crate::header::Header;
 use crate::http_methods::HttpMethods;
@@ -6,7 +7,7 @@ use crate::uri::Uri;
 
 use crate::body::Body;
 
-/// Request
+/// Http Request
 #[derive(Debug, Clone)]
 pub struct Request {
     method: HttpMethods,
@@ -15,6 +16,12 @@ pub struct Request {
     uri: Uri,
     params: HashMap<String, String>,
     body: Body,
+}
+
+impl Default for Request {
+    fn default() -> Self {
+        Self::new_empty()
+    }
 }
 
 impl Request {
@@ -32,26 +39,32 @@ impl Request {
 }
 
 impl Request {
+    /// http method reference
     pub fn method(&self) -> &HttpMethods {
         &self.method
     }
 
+    /// version reference
     pub fn version(&self) -> &String {
         &self.version
     }
 
+    /// uri reference
     pub fn uri(&self) -> &Uri {
         &self.uri
     }
 
+    /// Headers reference
     pub fn headers(&self) -> &HashMap<Header, String> {
         &self.headers
     }
 
+    /// Params reference
     pub fn params(&self) -> &HashMap<String, String> {
         &self.params
     }
 
+    /// Body reference
     pub fn body(&self) -> &Body {
         &self.body
     }
@@ -70,8 +83,9 @@ impl Request {
 
         let (method_str, uri_str, version_str) = Self::separate_method_uri_version(req_vec[0]);
 
-        let method = crate::http_methods::get_method_from_str(method_str);
+        let method = crate::http_methods::from_str_to_http_method(method_str).unwrap();
         let uri = Self::get_uri(uri_str);
+
         let params = match Self::get_params(uri_str) {
             Some(hashmap) => hashmap,
             None => HashMap::new(),
@@ -191,5 +205,18 @@ impl Request {
         }
 
         None
+    }
+}
+
+impl fmt::Display for Request {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("Request")
+            .field("method", &self.method)
+            .field("version", &self.version)
+            .field("headers", &self.headers)
+            .field("uri", &self.uri)
+            .field("params", &self.params)
+            .field("body", &self.body)
+            .finish()
     }
 }

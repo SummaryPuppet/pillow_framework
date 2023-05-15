@@ -1,5 +1,7 @@
-use crate::{request::Request, response::Response};
+use crate::{Request, Response};
 
 pub trait Handler {
-    fn handle(_request: Request, response: Response) -> String;
+    fn handler(request: &Request) -> Response
+    where
+        Self: std::fmt::Debug + Sized + Send + Sync;
 }

@@ -1,26 +1,43 @@
-use std::fmt;
-
 use regex::Regex;
 
 use pillow_http::{controller::Controller, Request, Response};
 
-/// Instance of Route
+/// Route
 pub struct Route {
-    /// url path
+    method: pillow_http::http_methods::HttpMethods,
+    /// uri path
     uri: pillow_http::Uri,
+
     /// Controller Callback Function
     controller: Controller,
+
     /// Parameters
     params: Vec<String>,
 
     /// Regex
-    pub regex_complete: Regex,
-    pub regex_words: Regex,
+    pub(crate) regex_complete: Regex,
+    pub(crate) regex_words: Regex,
 }
 
 impl Route {
     pub fn uri(&self) -> &pillow_http::Uri {
         &self.uri
+    }
+
+    pub fn method(&self) -> &pillow_http::http_methods::HttpMethods {
+        &self.method
+    }
+
+    pub fn params(&self) -> &Vec<String> {
+        &self.params
+    }
+
+    pub fn regex_complete(&self) -> &Regex {
+        &self.regex_complete
+    }
+
+    pub fn regex_words(&self) -> &Regex {
+        &self.regex_words
     }
 }
 
@@ -31,11 +48,20 @@ impl Route {
     ///
     /// * `url` - Path of Route
     /// * `controller` - Callback function
-    pub fn new<F>(url: String, controller: F) -> Route
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// Route::new("/".to_string, pillow::http::HttpMethods::GET, |request| pillow::http::Response::text("hello"))
+    /// ``
+    pub fn new<T>(
+        url: String,
+        method: pillow_http::http_methods::HttpMethods,
+        controller: T,
+    ) -> Self
     where
-        F: Fn(Request) -> Response + Sync + Send + 'static,
+        T: Fn(&Request) -> Response + Sync + Send + 'static,
     {
-        let action = Controller::new(controller);
         let re = Regex::new(r"(<[a-zA-Z]+>)").unwrap();
         let regex_words = Regex::new(r"([a-zA-Z0-9]+)").unwrap();
 
@@ -53,9 +79,12 @@ impl Route {
             Vec::new()
         };
 
-        Route {
+        let controller = Controller::new(controller);
+
+        Self {
+            method,
             uri: pillow_http::Uri(url),
-            controller: action,
+            controller,
             params,
             regex_complete: re,
             regex_words,
@@ -69,28 +98,18 @@ impl Route {
         self.params.len() > 0
     }
 
+    /// Add Params
     pub fn add_parameters(&mut self, param: String) {
         self.params.push(param);
     }
 
+    /// Get params
     pub fn get_parameters(&self) -> &Vec<String> {
         &self.params
     }
 
-    /// Controller
-    pub(crate) fn use_controller(&self, request: Request) -> Response {
+    /// Use controller
+    pub(crate) fn use_controller(&self, request: &Request) -> Response {
         self.controller.use_action(request)
-    }
-}
-
-impl fmt::Display for Route {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", &self.uri)
-    }
-}
-
-impl fmt::Debug for Route {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("Route").field("url", &self.uri).finish()
     }
 }

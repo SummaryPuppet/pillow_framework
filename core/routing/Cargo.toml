@@ -12,12 +12,7 @@ repository.workspace = true
 
 [dependencies]
 regex = "1.7.0"
-colored = "2.0.0"
 futures = "0.3.25"
 tokio = { version = "1", features = ["full"] }
 pillow-http = { workspace = true, path = "../http" }
 pillow-env = { workspace = true, path = "../env" }
-
-[dependencies.async-std]
-version = "1.6"
-features = ["attributes"]

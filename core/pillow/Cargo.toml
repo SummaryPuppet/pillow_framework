@@ -19,15 +19,19 @@ name = "pillow"
 path = "src/lib.rs"
 
 [features]
-full = ["env", "fs", "templates"]
+default = ["http", "routing", "macros"]
+full = ["http", "env", "fs", "templates"]
+http = ["pillow-http"]
+routing = ["pillow-routing"]
 env = ["pillow-env"]
 fs = ["pillow-fs"]
 templates = ["pillow-templates"]
+macros = ["pillow_macros"]
 
 [dependencies]
-pillow-http = { workspace = true, default-features = false, path = "../http" }
-pillow-routing = { workspace = true, path = "../routing" }
+pillow-http = { workspace = true, default-features = true, optional=true, path = "../http" }
+pillow-routing = { workspace = true, optional=true, path = "../routing" }
 pillow-fs = { workspace = true, optional = true,path = "../fs" }
 pillow-env = { workspace = true, optional = true, path = "../env" }
 pillow-templates = { workspace = true, optional = true, path = "../templates" }
-
+pillow_macros = { workspace = true, default-features = true, optional=true, path = "../macros" }

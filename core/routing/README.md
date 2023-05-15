@@ -1,5 +1,5 @@
 # Pillow Routing
 
 ```toml
-pillow = { version = "*", features=["http"] }
+pillow = { version = "*", features=["routing"] }
 ```

@@ -1,6 +1,6 @@
 use super::{request::Request, response::Response};
 
-type ControllerBoxType = Box<dyn Fn(Request) -> Response + Sync + Send + 'static>;
+type ControllerBoxType = Box<dyn Fn(&Request) -> Response + Sync + Send + 'static>;
 
 pub trait ControllerT {
     fn controller(&self, _: Request) -> Response;
@@ -15,7 +15,7 @@ impl Controller {
     /// Returns new Controller
     pub fn new<F>(cb: F) -> Controller
     where
-        F: Fn(Request) -> Response + Sync + Send + 'static,
+        F: Fn(&Request) -> Response + Sync + Send + 'static,
     {
         let action = Box::new(cb);
 
@@ -34,7 +34,7 @@ impl Controller {
     /// # Arguments
     ///
     /// * `request` - Request
-    pub fn use_action(&self, request: Request) -> Response {
+    pub fn use_action(&self, request: &Request) -> Response {
         let cb = &self.get_action();
 
         cb(request)

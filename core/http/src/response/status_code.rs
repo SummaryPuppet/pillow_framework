@@ -1,6 +1,6 @@
 use std::fmt;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum StatusCode {
     Information(Information),
     Successfull(Successfull),
@@ -36,7 +36,7 @@ pub trait AsStr {
 }
 
 /// Information Messages
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Information {
     /// This interim response indicates that the client should continue the request or ignore the response if the request is already finished.
     Continue,
@@ -54,7 +54,7 @@ impl AsStr for Information {
 }
 
 /// Successfull Messages
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Successfull {
     /// The request succeeded. The result meaning of "success" depends on the HTTP method:
     ///
@@ -89,7 +89,7 @@ impl AsStr for Successfull {
 }
 
 /// Redirect
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Redirection {
     /// The request has more than one possible response.
     /// The user agent or user should choose one of them.
@@ -130,7 +130,7 @@ impl AsStr for Redirection {
 }
 
 /// Client Error Messages
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ClientError {
     /// The server cannot or will not process the request due to something that is perceived to be a client error (e.g., malformed request syntax, invalid request message framing, or deceptive request routing).
     BadRequest,
@@ -173,7 +173,7 @@ impl AsStr for ClientError {
 }
 
 /// Server Error Messages
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ServerError {
     /// The server has encountered a situation it does not know how to handle.
     InternalServerError,

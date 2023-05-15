@@ -3,6 +3,7 @@ use regex::Regex;
 use pillow_fs::FS;
 
 #[derive(Debug)]
+#[allow(dead_code)]
 pub struct StaticFiles {
     pub files: Vec<StaticFile>,
 }
@@ -23,9 +24,17 @@ pub enum StaticFileType {
     JS,
 }
 
+impl Default for StaticFiles {
+    fn default() -> Self {
+        Self::new("resources")
+    }
+}
+
 impl StaticFiles {
-    pub fn new() -> StaticFiles {
-        let resources = FS::get_all_in_directories("resources");
+    #[allow(dead_code)]
+    pub fn new(directory: &str) -> StaticFiles {
+        let resources = FS::get_all_in_directories(directory);
+
         let css = FS::get_all_in_directories(&resources[1].path);
         let js = FS::get_all_in_directories(&resources[2].path);
 

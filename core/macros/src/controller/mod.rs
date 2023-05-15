@@ -1,55 +1,93 @@
 use proc_macro::TokenStream;
 use quote::quote;
-use syn::Item;
+use syn::{AttributeArgs, ItemFn};
 
-pub(crate) fn generate(input: Item) -> syn::Result<TokenStream> {
-    match input {
-        Item::Fn(item_fn) => {
-            let attrs = &item_fn.attrs;
-            let vis = &item_fn.vis;
+pub(crate) fn generate(input: ItemFn, method: String, path: String) -> TokenStream {
+    let vis = &input.vis;
+    let _args = &input.attrs;
 
-            let sig = &item_fn.sig;
-            let body = &item_fn.block;
-            let name = &sig.ident;
+    let body = &input.block;
 
-            let struct_fn = quote! {
-                #vis struct #name;
+    let name = &input.sig.ident;
 
-                impl #name {
-                    #[allow(non_camel_case_types)]
-                    #[derive(Debug)]
-                    #(#attrs)*
-                    #sig {
-                        #body
-                    }
-                }
-            };
+    let struct_fn = quote! {
+        #[allow(non_camel_case_types)]
+        #[derive(Debug)]
+        #vis struct #name;
 
-            println!("struct_fn: {}", &struct_fn);
+        impl #name {
+            pub fn method() -> pillow::http::HttpMethods {
+                pillow::http::from_str_to_http_method(#method).unwrap()
+            }
 
-            let handler_struct_fn = quote! {
-                #struct_fn;
-
-                impl Controller for #name{
-                    fn #name
-                }
-            };
-
-            println!("{}", &handler_struct_fn);
-
-            let f_n = quote! {
-                fn #name (request: pillow::http::request::Request,response: pillow::http::response::Response) -> String
-                    #body
-
-            };
-
-            println!("f_n: {}", &f_n);
-
-            Ok(f_n.into())
+            pub fn path() -> String {
+                #path.to_string()
+            }
         }
-        _ => Err(syn::Error::new_spanned(
-            input,
-            "#[controller] must added to `fn`",
-        )),
+
+
+        impl pillow::http::Handler for #name {
+            fn handler(request: &pillow::http::Request) -> pillow::http::Response
+            where
+                Self: std::fmt::Debug + Sized + Send + Sync
+            {
+                #body
+            }
+        }
+    };
+
+    struct_fn.into()
+}
+
+pub(crate) fn generate_attrs(vec_attrs: AttributeArgs) -> (String, String) {
+    if vec_attrs.len() != 2 {
+        panic!("This attribute need 2 attributes: http method and the route");
     }
+
+    let method = match vec_attrs[0].clone() {
+        // When is controller("GET", "/")
+        syn::NestedMeta::Lit(lit) => {
+            if let syn::Lit::Str(lit_str) = lit {
+                lit_str.value().to_string()
+            } else {
+                panic!("Method is not correct")
+            }
+        }
+        syn::NestedMeta::Meta(meta) => {
+            // When is controller(method = "GET")
+            if let syn::Meta::NameValue(meta_name) = meta {
+                match meta_name.lit {
+                    syn::Lit::Str(str) => str.value().to_string(),
+
+                    _ => panic!("Method is not correct"),
+                }
+            } else {
+                panic!("Method is not correct")
+            }
+        }
+    };
+    let path = match vec_attrs[1].clone() {
+        // When is controller("GET, "/")
+        syn::NestedMeta::Lit(lit) => {
+            if let syn::Lit::Str(lit_str) = lit {
+                lit_str.value().to_string()
+            } else {
+                panic!("Path is not correct");
+            }
+        }
+        syn::NestedMeta::Meta(meta) => {
+            // When is controller(path = "/")
+            if let syn::Meta::NameValue(meta_name) = meta {
+                match meta_name.lit {
+                    syn::Lit::Str(str) => str.value().to_string(),
+
+                    _ => panic!("Path is not correct"),
+                }
+            } else {
+                panic!("Path is not correct")
+            }
+        }
+    };
+
+    (method, path)
 }

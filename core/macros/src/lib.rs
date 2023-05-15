@@ -1,42 +1,44 @@
+//! Macros in Pillow
+#![allow(dead_code)]
+
 use proc_macro::TokenStream;
-use syn::{parse_macro_input, Item};
+use syn::{parse_macro_input, AttributeArgs, ExprStruct, ItemFn};
 
 mod controller;
-mod shared;
+mod route;
 
+/// Conver controller in route
+///
+/// ```rust
+/// #[controller(method = "GET", path = "/")]
+/// fn index() -> Response {
+///     Response::text("hello")
+/// }
+/// ```
 #[proc_macro_attribute]
-pub fn controller(_args: TokenStream, input: TokenStream) -> TokenStream {
-    let input = parse_macro_input!(input as Item);
+pub fn controller(args: TokenStream, input: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(input as ItemFn);
+    let args = parse_macro_input!(args as AttributeArgs);
 
-    match controller::generate(input) {
-        Ok(i) => i,
-        Err(e) => e.to_compile_error().into(),
-    }
+    let (method, path) = controller::generate_attrs(args);
+    controller::generate(input, method, path)
 }
+/// Conver controller in route
+///
+/// ```rust
+/// #[controller(method = "GET", path = "/")]
+/// fn index() -> Response {
+///     Response::text("hello")
+/// }
+/// #[tokio::main]
+/// async fn main() {
+///     let mut router = MainRouter::new();
+///     router.add_route(route!(index {}));
+/// }
+/// ```
+#[proc_macro]
+pub fn route(item: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(item as ExprStruct);
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use quote::quote;
-    use syn::parse2;
-
-    #[test]
-    fn test_controller() {
-        let input = quote! {
-            #[controller]
-            fn ctrl() {
-                res.text("hello");
-            }
-        };
-
-        assert_eq!(
-            input.to_string(),
-            quote! {
-                fn ctrl (&self, _request: Request, response: Response) -> String {
-                    res.text("hello")
-                }
-            }
-            .to_string()
-        );
-    }
+    route::generate(input)
 }

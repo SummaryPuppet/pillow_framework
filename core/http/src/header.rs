@@ -32,6 +32,8 @@ pub enum Header {
     /// Last Modified
     LastModified,
     ///
+    Location,
+    ///
     SecWebSocketAccept,
     ///
     SecWebSocketKey,
@@ -49,9 +51,11 @@ pub enum Header {
     TransferEncoding,
     /// Upgrade
     Upgrade,
+    ///
     UserAgent,
     /// Accept Encoding
     Vary,
+    /// For Headers not implemented yet
     NONE,
 }
 
@@ -74,6 +78,8 @@ impl Header {
             Header::Date => "Date",
             Header::ETag => "ETag",
             Header::Host => "Host",
+
+            Header::Location => "Location",
             Header::LastModified => "Last-Modified",
 
             Header::SecWebSocketAccept => "Sec-WebSocket-Accept",
@@ -113,6 +119,8 @@ pub fn from_string_to_header(header: String) -> Header {
         "date" => Header::Date,
         "etag" => Header::ETag,
         "host" => Header::Host,
+
+        "location" => Header::Location,
         "last-modified" => Header::LastModified,
 
         "sec-webSocket-accept" => Header::SecWebSocketAccept,
