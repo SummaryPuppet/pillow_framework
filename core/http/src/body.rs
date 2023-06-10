@@ -1,8 +1,10 @@
+use serde_json::Value;
+
 /// Body of http
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Body {
     /// Json format
-    JSON(String),
+    JSON(Value),
 
     /// XML format
     XML(String),
@@ -21,7 +23,9 @@ pub fn from_string_to_body(string: String) -> Body {
     if string.starts_with("<html>") {
         Body::HTML(string)
     } else if string.starts_with("{") {
-        Body::JSON(string)
+        let json = serde_json::from_str(string.as_str()).unwrap();
+
+        Body::JSON(json)
     } else if string.starts_with("<") {
         Body::XML(string)
     } else {

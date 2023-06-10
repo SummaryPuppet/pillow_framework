@@ -2,7 +2,7 @@
 
 #![allow(dead_code)]
 
-mod body;
+pub mod body;
 pub mod controller;
 mod cors;
 pub mod futures_handler;
@@ -10,12 +10,17 @@ pub mod handler;
 pub mod header;
 pub mod http_methods;
 pub mod middlewares;
+mod params;
 mod request;
 mod response;
 mod uri;
 
+pub use response::static_files;
+
 pub use request::Request;
 pub use response::Response;
+
+pub use response::Body as BodyResponse;
 
 pub use serde_json::json;
 

@@ -71,6 +71,12 @@ impl Request {
 }
 
 impl Request {
+    pub fn add_params(&mut self, params: (String, String)) {
+        self.params.insert(params.0, params.1);
+    }
+}
+
+impl Request {
     /// Create a Request from &Vec<u8>
     ///
     /// # Arguments
@@ -170,6 +176,10 @@ impl Request {
     fn separate_method_uri_version(header: &str) -> (&str, &str, &str) {
         let header_vec: Vec<&str> = header.split_whitespace().collect();
 
+        if header_vec.len() < 2 {
+            panic!("Err in get header or uri or version");
+        }
+
         (header_vec[0], header_vec[1], header_vec[2])
     }
 
@@ -205,6 +215,12 @@ impl Request {
         }
 
         None
+    }
+}
+
+impl Request {
+    pub fn get_param(&self, param: &'static str) -> String {
+        self.params.get(param).unwrap().clone()
     }
 }
 

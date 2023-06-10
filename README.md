@@ -8,22 +8,28 @@ Add dependency
 
 ```toml
 [dependencies]
-pillow = "0.2.0"
+pillow = "0.3.0"
 tokio = {version = "1.23.0", features = ["full"]}
 ```
 
 ## Simple Server
 
 ```rust
-use pillow::http::{MainRouter, Response};
+use pillow::http::*;
+
+#[controller(method = "GET", path = "/")]
+fn index(){
+  Response::text("hello")
+}
 
 #[tokio::main]
 async fn main() {
   let mut router = MainRouter::new();
 
-  router.get("/", |_request| Response::view("index"));
+  router.add_route(route!(index {}));
+  router.get("/users", |_request| Response::text("users"));
 
-  let server = Server::new().unwrap();
+  let server = Server::default();
 
   server.run(&router).await:
 }
@@ -38,4 +44,3 @@ async fn main() {
 MIT Lincese
 
 ## Contribution
-

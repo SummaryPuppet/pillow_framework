@@ -17,6 +17,7 @@ pub enum Header {
     Cookie,
     /// Keep Connection
     Connection,
+    ContentDisposition,
     /// Content Length
     ContentLength,
     /// Content Segurity Policy
@@ -33,6 +34,8 @@ pub enum Header {
     LastModified,
     ///
     Location,
+    ///
+    SecFetchDest,
     ///
     SecWebSocketAccept,
     ///
@@ -71,6 +74,7 @@ impl Header {
             Header::CacheControl => "Cache-Control",
             Header::Cookie => "Cookie",
             Header::Connection => "Connection",
+            Header::ContentDisposition => "Content-Disposition",
             Header::ContentLength => "Content-Length",
             Header::ContentSegurityPolicy => "Content-Segurity-Policy",
             Header::ContentType => "Content-Type",
@@ -82,6 +86,7 @@ impl Header {
             Header::Location => "Location",
             Header::LastModified => "Last-Modified",
 
+            Header::SecFetchDest => "Sec-Fetch-Dest",
             Header::SecWebSocketAccept => "Sec-WebSocket-Accept",
             Header::SecWebSocketKey => "Sec-WebSocket-Key",
             Header::SecWebSocketOrigin => "Sec-WebSocket-Origin",
@@ -112,6 +117,7 @@ pub fn from_string_to_header(header: String) -> Header {
         "cache-control" => Header::CacheControl,
         "cookie" => Header::Cookie,
         "connection" => Header::Connection,
+        "content-disposition" => Header::ContentDisposition,
         "content-length" => Header::ContentLength,
         "content-segurity-policy" => Header::ContentSegurityPolicy,
         "content-type" => Header::ContentType,
@@ -123,6 +129,7 @@ pub fn from_string_to_header(header: String) -> Header {
         "location" => Header::Location,
         "last-modified" => Header::LastModified,
 
+        "sec-fetch-dest" => Header::SecFetchDest,
         "sec-webSocket-accept" => Header::SecWebSocketAccept,
         "sec-webSocket-key" => Header::SecWebSocketKey,
         "sec-webSocket-origin" => Header::SecWebSocketOrigin,
@@ -159,6 +166,7 @@ pub enum ContentType {
     ImgGif,
     ImgJpeg,
     ImgPng,
+    Xicon,
 
     FormData,
 
@@ -185,6 +193,7 @@ impl ContentType {
             ContentType::ImgGif => "image/gif",
             ContentType::ImgJpeg => "image/jpeg",
             ContentType::ImgPng => "image/png",
+            ContentType::Xicon => "image/x-icon",
 
             ContentType::FormData => "multipart/form-data",
 
@@ -197,5 +206,63 @@ impl ContentType {
             ContentType::MP4 => "video/mp4",
             ContentType::WEBM => "video/webm",
         }
+    }
+}
+
+fn from_str_to_content_type(str: &'static str) -> ContentType {
+    match str.to_lowercase().as_str() {
+        "application/js; charset=utf-8" => ContentType::JS,
+        "application/pdf; charset=utf-8" => ContentType::PDF,
+        "application/json; charset=utf-8" => ContentType::JSON,
+        "application/xml" => ContentType::XML,
+        "application/zip" => ContentType::ZIP,
+        "application/x-www-form-urlencoded" => ContentType::Urlencode,
+
+        "image/gif" => ContentType::ImgGif,
+        "image/jpeg" => ContentType::ImgJpeg,
+        "image/png" => ContentType::ImgPng,
+        "image/x-icon" => ContentType::Xicon,
+
+        "multipart/form-data" => ContentType::FormData,
+
+        "text/css; charset=utf-8" => ContentType::CSS,
+        "text/csv; charset=utf-8" => ContentType::CSV,
+        "text/html; charset=utf-8" => ContentType::Html,
+        "text/plain; charset=utf-8" => ContentType::Text,
+
+        "video/mpeg" => ContentType::MPEG,
+        "video/mp4" => ContentType::MP4,
+        "video/webm" => ContentType::WEBM,
+
+        _ => ContentType::Text,
+    }
+}
+
+pub fn from_str_ext_to_content_type(str: &str) -> ContentType {
+    match str.to_lowercase().as_str() {
+        "application/js" => ContentType::JS,
+        "application/pdf" => ContentType::PDF,
+        "application/json" => ContentType::JSON,
+        "application/xml" => ContentType::XML,
+        "application/zip" => ContentType::ZIP,
+        "application/x-www-form-urlencoded" => ContentType::Urlencode,
+
+        "image/gif" => ContentType::ImgGif,
+        "image/jpeg" => ContentType::ImgJpeg,
+        "image/png" => ContentType::ImgPng,
+        "image/x-icon" => ContentType::Xicon,
+
+        "multipart/form-data" => ContentType::FormData,
+
+        "text/css; charset=utf-8" => ContentType::CSS,
+        "text/csv; charset=utf-8" => ContentType::CSV,
+        "text/html; charset=utf-8" => ContentType::Html,
+        "text/plain; charset=utf-8" => ContentType::Text,
+
+        "video/mpeg" => ContentType::MPEG,
+        "video/mp4" => ContentType::MP4,
+        "video/webm" => ContentType::WEBM,
+
+        _ => ContentType::Text,
     }
 }

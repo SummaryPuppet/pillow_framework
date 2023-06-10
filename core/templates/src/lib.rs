@@ -1,5 +1,4 @@
 use handlebars::Handlebars;
-use pillow_fs::FS;
 use serde_json::Value;
 use tera::Tera;
 
@@ -53,7 +52,7 @@ pub enum Template {
     /// use Tera::Context;
     ///
     /// let ctx = Context::new();
-    /// let tera = Template::Tera("index", "html", ctx);
+    /// let tera = Template::Tera("index", "tera.html", ctx);
     /// ```
     Tera(&'static str, &'static str, Context),
 }
@@ -77,7 +76,7 @@ impl Template {
             Template::Html(file) => {
                 let path = format!("{}/{}.html", resources, file);
 
-                FS::read_to_string(path.as_str())
+                std::fs::read_to_string(path.as_str()).unwrap()
             }
 
             Template::Handlebars(hbs, value) => {

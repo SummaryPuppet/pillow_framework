@@ -1,8 +1,14 @@
 [package]
 name = "pillow_macros"
-version = "0.1.0"
-edition = "2021"
-authors = ["SummaryPuppet"]
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+description = "macros for pillow"
+license = "MIT"
+readme = "./README.md"
+homepage.workspace = true
+documentation.workspace = true
+repository.workspace = true
 
 [lib]
 name = "pillow_macros"

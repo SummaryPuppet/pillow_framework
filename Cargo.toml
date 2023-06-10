@@ -14,10 +14,10 @@ documentation = "https://github.com/SummaryPuppet/pillow_framework"
 repository = "https://github.com/SummaryPuppet/pillow_framework"
 
 [workspace.dependencies]
-pillow-http = { version = "0.4.2", path = "./core/http" }
+pillow-http = { version = "0.4.1", path = "./core/http" }
 pillow-fs = { version = "0.4.1", path = "./core/fs" }
 pillow-env = { version = "0.4.1", path = "./core/env" }
-pillow-routing = { version = "0.4.2", path = "./core/routing" }
+pillow-routing = { version = "0.4.1", path = "./core/routing" }
 pillow-templates = { version = "0.4.1", path = "./core/templates" }
 pillow-database = { version = "0.3.0", path = "./core/database" }
-pillow_macros = { version = "0.1.1", path = "./core/macros" }
+pillow_macros = { version = "0.4.0", path = "./core/macros" }

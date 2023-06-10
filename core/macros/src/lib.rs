@@ -2,7 +2,7 @@
 #![allow(dead_code)]
 
 use proc_macro::TokenStream;
-use syn::{parse_macro_input, AttributeArgs, ExprStruct, ItemFn};
+use syn::{parse_macro_input, AttributeArgs, Expr};
 
 mod controller;
 mod route;
@@ -10,6 +10,8 @@ mod route;
 /// Conver controller in route
 ///
 /// ```rust
+/// use pillow::http::*;
+///
 /// #[controller(method = "GET", path = "/")]
 /// fn index() -> Response {
 ///     Response::text("hello")
@@ -17,7 +19,7 @@ mod route;
 /// ```
 #[proc_macro_attribute]
 pub fn controller(args: TokenStream, input: TokenStream) -> TokenStream {
-    let input = parse_macro_input!(input as ItemFn);
+    let input = parse_macro_input!(input as syn::ItemFn);
     let args = parse_macro_input!(args as AttributeArgs);
 
     let (method, path) = controller::generate_attrs(args);
@@ -26,6 +28,8 @@ pub fn controller(args: TokenStream, input: TokenStream) -> TokenStream {
 /// Conver controller in route
 ///
 /// ```rust
+/// use pillow::http::*;
+///
 /// #[controller(method = "GET", path = "/")]
 /// fn index() -> Response {
 ///     Response::text("hello")
@@ -37,8 +41,8 @@ pub fn controller(args: TokenStream, input: TokenStream) -> TokenStream {
 /// }
 /// ```
 #[proc_macro]
-pub fn route(item: TokenStream) -> TokenStream {
-    let input = parse_macro_input!(item as ExprStruct);
+pub fn route(input: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(input as Expr);
 
     route::generate(input)
 }

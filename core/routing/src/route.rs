@@ -1,3 +1,5 @@
+use std::fmt::Debug;
+
 use regex::Regex;
 
 use pillow_http::{controller::Controller, Request, Response};
@@ -17,6 +19,16 @@ pub struct Route {
     /// Regex
     pub(crate) regex_complete: Regex,
     pub(crate) regex_words: Regex,
+}
+
+impl Debug for Route {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Route")
+            .field("method", &self.method)
+            .field("uri", &self.uri)
+            .field("params", &self.params)
+            .finish()
+    }
 }
 
 impl Route {
@@ -50,9 +62,10 @@ impl Route {
     /// * `controller` - Callback function
     ///
     /// # Examples
+    /// use pillow::http::Response
     ///
     /// ```rust
-    /// Route::new("/".to_string, pillow::http::HttpMethods::GET, |request| pillow::http::Response::text("hello"))
+    /// Route::new("/".to_string(), pillow::http::HttpMethods::GET, |request| Response::text("hello"))
     /// ``
     pub fn new<T>(
         url: String,

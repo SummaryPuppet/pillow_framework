@@ -1,12 +1,14 @@
 use proc_macro::TokenStream;
 use quote::quote;
-use syn::ExprStruct;
+use syn::Expr;
 
-pub(crate) fn generate(input: ExprStruct) -> TokenStream {
-    let _args = &input.attrs;
+pub(crate) fn generate(input: Expr) -> TokenStream {
+    let s = match input {
+        Expr::Struct(expr_struct) => expr_struct,
+        _ => panic!("Expected ExprStruct"),
+    };
 
-    let name = &input.path;
-    // let name = &input.ident;
+    let name = &s.path;
 
     quote! {
         {

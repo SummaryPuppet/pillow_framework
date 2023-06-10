@@ -34,6 +34,12 @@ pub(crate) fn generate(input: ItemFn, method: String, path: String) -> TokenStre
                 #body
             }
         }
+
+        impl From<#name> for pillow::http::Route {
+            fn from (_: #name) -> Self {
+                pillow::http::Route::new(#name::path(), #name::method(), |request| #name::handler(request))
+            }
+        }
     };
 
     struct_fn.into()

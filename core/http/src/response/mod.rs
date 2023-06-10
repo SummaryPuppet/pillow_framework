@@ -1,9 +1,9 @@
-use crate::header;
+use crate::header::{self, ContentType};
 pub mod static_files;
 pub mod status_code;
 
 /// Response struct to client
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub struct Response {
     /// Like 200 OK
     status_code: StatusCode,
@@ -17,7 +17,38 @@ pub struct Response {
 
     /// Content of Response
     /// Like html, json, other.
-    content: String,
+    content: Body,
+}
+
+#[derive(Debug, PartialEq, Eq, Clone)]
+pub enum Body {
+    STRING(String),
+    BYTES(Vec<u8>),
+}
+
+impl std::fmt::Display for Body {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Body::STRING(string) => write!(f, "{}", string),
+            Body::BYTES(bytes) => {
+                let bytes_str = bytes
+                    .iter()
+                    .map(|&byte| format!("{:02X}", byte))
+                    .collect::<String>();
+                write!(f, "{}", bytes_str)
+            }
+        }
+    }
+}
+
+impl Body {
+    pub fn as_bytes(&self) -> &[u8] {
+        match self {
+            Body::STRING(s) => s.as_bytes(),
+
+            Body::BYTES(b) => b.as_slice(),
+        }
+    }
 }
 
 use std::collections::HashMap;
@@ -38,21 +69,20 @@ impl Response {
         Response {
             status_code: StatusCode::Successfull(status_code::Successfull::OK),
 
-            // template_engine: Template::Html(""),
             headers: HashMap::from([
                 (Header::Server, String::from("Pillow")),
-                (Header::ETag, String::from(r#""3314042""#)),
+                // (Header::ETag, String::from(r#""3314042""#)),
             ]),
 
             cors: String::from("*"),
 
-            content: String::new(),
+            content: Body::STRING(String::new()),
         }
     }
 }
 
 impl Response {
-    /// Send a html file from views directory
+    /// Send a html file from resources/views directory
     ///
     /// # Arguments
     ///
@@ -60,14 +90,15 @@ impl Response {
     ///
     /// # Examples
     ///
-    /// ```
-    /// use pillow::http::{ MainRouter, Response };
+    /// ```rust
+    /// use pillow::http::*;
     ///
-    /// let mut router = MainRouter::new();
-    ///
-    /// router.get("/", |_| Response::view("index"));
+    /// #[controller(method = "GET", path = "/")]
+    /// fn index() -> Response {
+    ///     Response::html("index")
+    /// }
     /// ```
-    pub fn view(page: &'static str) -> Response {
+    pub fn html(page: &'static str) -> Response {
         let mut response = Self::new_empty();
 
         let html = Template::Html(page);
@@ -84,27 +115,33 @@ impl Response {
             (Header::LastModified, date.to_string()),
         ]);
 
-        response.insert_content(contents);
+        response.insert_string_content(contents);
 
         response
     }
 
-    /// Send a html file from views directory
+    /// Send a html file from resources/views directory
     ///
     /// # Arguments
     ///
-    /// * page - A String that the page on views directory
+    /// * Template - Enum contain the name of file in resources/views
     ///
     /// # Examples
     ///
-    /// ```
-    /// use pillow::http::{ MainRouter, Response };
+    /// ```rust
+    /// use pillow::{
+    ///     http::*,
+    ///     templates::{Context, Template}
+    /// };
     ///
-    /// let mut router = MainRouter::new();
+    /// #[controller(method = "GET", path = "/")]
+    ///  fn index() -> Response {
+    ///     let mut ctx = Context::new();
     ///
-    /// router.get("/", |_| Response::view("index"));
+    ///     Response::view(Template::Tera("index", "tera.html", ctx))
+    /// }
     /// ```
-    pub fn view_in_templates(template: Template) -> Response {
+    pub fn view(template: Template) -> Response {
         let mut response = Self::new_empty();
 
         let contents = template.render();
@@ -120,12 +157,12 @@ impl Response {
             (Header::LastModified, date.to_string()),
         ]);
 
-        response.insert_content(contents);
+        response.insert_string_content(contents);
 
         response
     }
 
-    /// Send a hbs file from views directory
+    /// Send a hbs file from resources/views directory
     ///
     /// # Arguments
     ///
@@ -134,17 +171,20 @@ impl Response {
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```rust
     /// use pillow::json;
-    /// use pillow::http::{ MainRouter, Response };
+    /// use pillow::http::*;
     ///
-    /// let mut router = MainRouter::new();
+    /// #[controller(method = "GET", path = "/")]
+    ///  fn index() -> Response {
+    ///     let json = json! ({
+    ///         "name": "foo"
+    ///     });
     ///
-    /// router.get("/", |_| {
-    ///     Response::view_hbs("index", json!({"name": "foo"}))
-    /// });
+    ///     Response::hbs("index", json)
+    /// }
     /// ```
-    pub fn view_hbs(page: &'static str, data: Value) -> Response {
+    pub fn hbs(page: &'static str, data: Value) -> Response {
         let mut response = Self::new_empty();
 
         let hbs = Template::Handlebars(page, data);
@@ -161,7 +201,7 @@ impl Response {
             (Header::LastModified, date.to_string()),
         ]);
 
-        response.insert_content(contents);
+        response.insert_string_content(contents);
 
         response
     }
@@ -174,19 +214,18 @@ impl Response {
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```rust
     /// use pillow::json;
     /// use pillow::http::{ MainRouter, Response };
     ///
-    /// let mut router = MainRouter::new();
+    /// #[controller(method = "GET", path = "/")]
+    ///  fn index() -> Response {
+    ///     let json = json! ({
+    ///         "name": "foo"
+    ///     });
     ///
-    /// app.get("/", |_| {
-    ///    let json = json!({
-    ///     "name": "Manuel"
-    ///     "age": 18
-    ///    })
-    ///
-    ///    Response::json(json)
+    ///     Response::json(json)
+    /// }
     /// ```
     pub fn json(js: Value) -> Response {
         let mut response = Self::new_empty();
@@ -207,7 +246,7 @@ impl Response {
             (Header::Vary, "Accept-Encoding".to_string()),
         ]);
 
-        response.insert_content(json);
+        response.insert_string_content(json);
 
         response
     }
@@ -220,17 +259,15 @@ impl Response {
     ///
     /// # Examples
     ///
-    /// ```
-    /// use pillow::http::Router;
+    /// ```rust
+    /// use pillow::http::*;
     ///
-    /// let mut app = Router::new();
-    ///
-    /// app.get("/", |_, mut response| response.json_from_str(r#"
-    /// {
-    ///     "name": "SummaryPuppet",
-    ///     "age": 18,
+    /// #[controller(method = "GET", path = "/")]
+    ///  fn index() -> Response {
+    ///     Response::json_from_str(r#{
+    ///         "name": "foo"
+    ///     }#)
     /// }
-    /// "#));
     /// ```
     pub fn json_from_str(json: &str) -> Response {
         let mut response = Self::new_empty();
@@ -254,7 +291,7 @@ impl Response {
         ]);
 
         // let response = format!("{status_line}{res}\r\n\r\n{js}");
-        response.insert_content(js);
+        response.insert_string_content(js);
 
         response
     }
@@ -264,8 +301,11 @@ impl Response {
     /// # Examples
     ///
     /// ```rust
-    /// fn (){
-    ///     app.get("/", |_, response| response.text("hello"));
+    /// use pillow::http::*;
+    ///
+    /// #[controller(method = "GET", path = "/")]
+    ///  fn index() -> Response {
+    ///     Response::text("hello world")
     /// }
     /// ```
     pub fn text(txt: &str) -> Response {
@@ -279,7 +319,7 @@ impl Response {
             (Header::ContentLength, length.to_string()),
         ]);
 
-        response.insert_content(txt.to_string());
+        response.insert_string_content(txt.to_string());
 
         response
     }
@@ -332,6 +372,26 @@ impl Response {
 
         response
     }
+
+    pub fn file(content_type: ContentType, content: Vec<u8>) -> Response {
+        let mut response = Self::new_empty();
+
+        let date = crate::get_date_now!();
+
+        response.add_multiple_headers(vec![
+            (Header::AccessControlAllowOrigin, response.cors.to_string()),
+            (Header::Connection, "Keep-Alive".to_string()),
+            // (Header::ContentDisposition, "inline".to_string()),
+            (Header::ContentLength, content.len().to_string()),
+            (Header::Date, date.to_string()),
+        ]);
+
+        response.content_type(content_type);
+
+        response.insert_bytes_content(content.clone());
+
+        response
+    }
 }
 
 impl Response {
@@ -349,9 +409,9 @@ impl Response {
     }
 }
 
-impl Response {
+impl ToString for Response {
     /// Convert Response struct in String
-    pub fn to_string(&self) -> String {
+    fn to_string(&self) -> String {
         let res = format!(
             "{}{}\r\n\r\n{}",
             &self.get_status_line(),
@@ -361,40 +421,48 @@ impl Response {
 
         res
     }
+}
 
+impl Response {
     /// Insert content in the Response.body
-    pub fn insert_content(&mut self, content: String) {
-        self.content = content
+    pub fn insert_string_content(&mut self, content: String) {
+        self.content = Body::STRING(content);
+    }
+
+    pub fn insert_bytes_content(&mut self, content: Vec<u8>) {
+        self.content = Body::BYTES(content);
     }
 }
 
 impl Response {
     /// Change Content-Type of the response
-    pub fn content_type(&mut self, content_type: header::ContentType) {
-        self.add_header(Header::ContentType, content_type.as_str().to_string())
+    pub fn content_type(&mut self, content_type: header::ContentType) -> &Response {
+        self.add_header(Header::ContentType, content_type.as_str().to_string());
+        self
     }
 }
 
 impl Response {
-    pub fn websocket_upgrade_connection(&mut self) -> String {
-        self.set_status_code(StatusCode::Information(
+    pub fn websocket_upgrade_connection() -> Response {
+        let mut response = Response::new_empty();
+
+        response.set_status_code(StatusCode::Information(
             status_code::Information::SwitchingProtocols,
         ));
 
-        let status_line = self.get_status_line();
+        response.clear_headers();
 
-        self.clear_headers();
-
-        self.add_multiple_headers(vec![
+        response.add_multiple_headers(vec![
             (Header::Upgrade, "websocket".to_string()),
             (Header::Connection, "Upgrade".to_string()),
-            (Header::SecWebSocketAccept, "fwaeawgeegaw".to_string()),
+            (
+                Header::SecWebSocketAccept,
+                "s3pPLMBiTxaQ9kYGzzhZRbK+xOo=".to_string(),
+            ),
             (Header::SecWebSocketProtocol, "superchat".to_string()),
         ]);
 
-        let headers = self.get_headers();
-
-        let response = format!("{}{}\r\n", status_line, headers);
+        println!("Response: {:#?}", &response.to_string());
 
         response
     }
@@ -429,18 +497,19 @@ impl Response {
     /// # Examples
     ///
     /// ```rust
-    /// use pillow::http::Router;
+    /// use pillow::http::*;
     ///
-    /// let mut app = Router::new();
+    /// #[controller(method="GET", path = "/")]
+    /// fn index() {
+    ///     let response: Response = Response::new_empty();
     ///
-    /// app.get("/", |_, response|{
     ///     response.add_multiple_headers(vec![
     ///         (Header::ContentType, "text/html".to_string()),
     ///         (Header::AccessControlAllowOrigin, "*".to_string())
     ///     ])
     ///
-    ///     response.view("index")
-    /// })
+    ///     response
+    /// }
     /// ```
     pub fn add_multiple_headers(&mut self, headers: Vec<(Header, String)>) {
         for (header, value) in headers {
@@ -455,7 +524,7 @@ impl Response {
     /// ```rust
     /// let headers: String = self.get_headers();
     /// ```
-    fn get_headers(&self) -> String {
+    pub fn get_headers(&self) -> String {
         let mut res = String::new();
 
         for (header, value) in &self.headers {
@@ -481,7 +550,7 @@ impl Response {
     ///
     /// assert_eq!(status_line, "HTTP/1.1 200 OK".to_string());
     /// ```
-    fn get_status_line(&self) -> String {
+    pub fn get_status_line(&self) -> String {
         let status_code = &self.status_code;
         let status_line = format!("HTTP/1.1 {}", status_code.as_str());
 
@@ -498,6 +567,10 @@ impl Response {
     /// ```
     pub fn set_status_code(&mut self, code: StatusCode) {
         self.status_code = code;
+    }
+
+    pub fn get_body(&self) -> Body {
+        self.content.clone()
     }
 }
 

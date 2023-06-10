@@ -42,6 +42,11 @@ pub mod http {
     pub use pillow_http::http_methods::from_str_to_http_method;
     pub use pillow_http::http_methods::HttpMethods;
 
+    pub use pillow_http::body::Body;
+
+    pub use pillow_http::header::ContentType;
+    pub use pillow_http::header::Header;
+
     pub use pillow_http::Request;
     pub use pillow_http::Response;
 
