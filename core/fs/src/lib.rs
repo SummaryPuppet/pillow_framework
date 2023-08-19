@@ -64,7 +64,9 @@ impl FS {
     /// }
     /// ```
     pub fn get_all_in_directories(path: &str) -> Vec<File> {
-        let directory_root = fs::read_dir(path).unwrap();
+        let err_msg = format!("No such file or directory ' {} '", path);
+
+        let directory_root = fs::read_dir(path).expect(&err_msg);
         let mut directories_dir_entry = Vec::new();
         let mut directories: Vec<File> = Vec::new();
 

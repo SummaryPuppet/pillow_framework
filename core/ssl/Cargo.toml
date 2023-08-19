@@ -1,0 +1,13 @@
+[package]
+name = "pillow-ssl"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+tokio-native-tls = "0.3.1"
+native-tls = "0.2"
+futures-util = "0.3.28"
+tokio = { version = "1.32", features = ["net"] }
+pillow-config = { workspace = true, path = "../config" }

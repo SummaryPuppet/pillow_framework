@@ -1,7 +1,7 @@
 [package]
 name = "pillow-fs"
 description = "pillow fs"
-version.workspace = true
+version = "4.2.0"
 edition.workspace = true
 authors.workspace = true
 license = "MIT"
@@ -11,5 +11,4 @@ documentation.workspace = true
 repository.workspace = true
 
 [dependencies]
-
 mime_guess = "2.0.4"

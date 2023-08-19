@@ -14,6 +14,7 @@ use pillow_http::{handler::Handler, middlewares::Middleware, Request, Response};
 /// }
 /// ```
 #[allow(dead_code)]
+#[derive(Debug)]
 pub struct MainRouter {
     routes: HashMap<pillow_http::http_methods::HttpMethods, Vec<Route>>,
 }
@@ -126,7 +127,7 @@ impl MainRouter {
         response.clone()
     }
 
-    pub(crate) fn routing(&self, request_ref: &Request) -> Vec<Response> {
+    pub fn routing(&self, request_ref: &Request) -> Vec<Response> {
         // Clone the request
         let mut request = request_ref.clone();
 

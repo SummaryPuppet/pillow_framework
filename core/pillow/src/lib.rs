@@ -53,8 +53,8 @@ pub mod http {
     #[cfg(feature = "routing")]
     pub use pillow_routing::MainRouter;
 
-    #[cfg(feature = "routing")]
-    pub use pillow_routing::Server;
+    #[cfg(feature = "server")]
+    pub use pillow_server::Server;
 
     #[cfg(feature = "routing")]
     pub use pillow_routing::Route;

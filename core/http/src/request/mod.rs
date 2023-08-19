@@ -7,8 +7,10 @@ use crate::uri::Uri;
 
 use crate::body::Body;
 
+use serde::{Deserialize, Serialize};
+
 /// Http Request
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Request {
     method: HttpMethods,
     version: String,

@@ -1,0 +1,19 @@
+[package]
+name = "pillow_server"
+description = "Server for Pillow"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+readme = "./README.md"
+
+[dependencies]
+tokio = { version = "1", features = ["full"] }
+tokio-tls = "0.3.1"
+native-tls = "0.2"
+futures-util = "0.3.28"
+# tungstenite = "0.20"
+# tokio-tungstenite = "0.20.0"
+pillow-http = { workspace = true, path = "../http" }
+pillow-routing = { workspace = true, path = "../routing" }
+pillow-config = { workspace = true, path = "../config" }
+pillow-ssl = { workspace = true, path = "../ssl" }

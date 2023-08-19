@@ -1,3 +1,5 @@
+use serde::{Deserialize, Serialize};
+
 /// Http URI
 ///
 /// # Examples
@@ -5,7 +7,7 @@
 /// ```rust
 /// Uri("/usrs/01".to_string())
 /// ```
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Serialize, Deserialize)]
 pub struct Uri(pub String);
 
 impl Uri {

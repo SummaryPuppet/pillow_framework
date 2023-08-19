@@ -1,4 +1,4 @@
-use std::fmt::Debug;
+use std::fmt::{Debug, Display};
 
 use regex::Regex;
 
@@ -19,6 +19,16 @@ pub struct Route {
     /// Regex
     pub(crate) regex_complete: Regex,
     pub(crate) regex_words: Regex,
+}
+
+impl Display for Route {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Route")
+            .field("method", &self.method)
+            .field("uri", &self.uri)
+            .field("params", &self.params)
+            .finish()
+    }
 }
 
 impl Debug for Route {

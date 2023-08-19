@@ -1,7 +1,7 @@
 [package]
 name = "pillow-routing"
 description = "Routin in Pillow"
-version.workspace = true
+version = "0.4.2"
 edition.workspace = true
 authors.workspace = true
 license = "MIT"
@@ -16,3 +16,4 @@ futures = "0.3.25"
 tokio = { version = "1", features = ["full"] }
 pillow-http = { workspace = true, path = "../http" }
 pillow-env = { workspace = true, path = "../env" }
+pillow-config = { workspace = true, path = "../config" }

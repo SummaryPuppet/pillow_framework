@@ -1,6 +1,7 @@
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
-#[derive(PartialEq, Eq, Hash, Debug, Clone)]
+#[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize)]
 pub enum Header {
     /// Cors
     AccessControlAllowOrigin,
@@ -161,6 +162,7 @@ pub enum ContentType {
     JSON,
     XML,
     ZIP,
+    WASM,
     Urlencode,
 
     ImgGif,
@@ -188,6 +190,7 @@ impl ContentType {
             ContentType::JSON => "application/json; charset=utf-8",
             ContentType::XML => "application/xml",
             ContentType::ZIP => "application/zip",
+            ContentType::WASM => "application/wasm",
             ContentType::Urlencode => "application/x-www-form-urlencoded",
 
             ContentType::ImgGif => "image/gif",
@@ -216,6 +219,7 @@ fn from_str_to_content_type(str: &'static str) -> ContentType {
         "application/json; charset=utf-8" => ContentType::JSON,
         "application/xml" => ContentType::XML,
         "application/zip" => ContentType::ZIP,
+        "application/wasm" => ContentType::WASM,
         "application/x-www-form-urlencoded" => ContentType::Urlencode,
 
         "image/gif" => ContentType::ImgGif,
@@ -245,6 +249,7 @@ pub fn from_str_ext_to_content_type(str: &str) -> ContentType {
         "application/json" => ContentType::JSON,
         "application/xml" => ContentType::XML,
         "application/zip" => ContentType::ZIP,
+        "application/wasm" => ContentType::WASM,
         "application/x-www-form-urlencoded" => ContentType::Urlencode,
 
         "image/gif" => ContentType::ImgGif,

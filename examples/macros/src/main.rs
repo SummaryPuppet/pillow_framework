@@ -1,7 +1,6 @@
-use pillow::{
-    http::*,
-    templates::{Context, Template},
-};
+use pillow::http::*;
+
+use macros::routes::users_route;
 
 #[controller(method = "GET", path = "/")]
 pub fn index() -> Response {
@@ -18,23 +17,11 @@ pub fn index_post() -> Response {
     }
 }
 
-#[controller(method = "GET", path = "/users/<id>")]
-pub fn users() -> Response {
-    println!("{:#?}", request.get_param("id"));
-
-    let mut ctx = Context::new();
-
-    ctx.insert("name", "SummaryPuppet");
-    ctx.insert("id", &request.get_param("id"));
-
-    Response::view(Template::Tera("users", "tera.html", ctx))
-}
-
 #[controller(method = "GET", path = "/ws")]
 pub fn websocket() {
     println!("{:#?}", request);
 
-    Response::websocket_upgrade_connection()
+    Response::text("hello")
 }
 
 #[tokio::main]
@@ -46,10 +33,10 @@ async fn main() {
 
     router.add_route(route!(index {}));
     router.add_route(route!(index_post {}));
-    router.add_route(route!(users {}));
+    router.add_route(route!(users_route {}));
     router.add_route(route!(websocket {}));
 
-    let server = Server::new(3000).unwrap();
+    let server = Server::new().unwrap();
 
     server.run(router).await;
 }

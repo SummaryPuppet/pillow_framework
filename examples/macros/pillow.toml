@@ -1,0 +1,20 @@
+[app]
+name = "pillow"
+debug = false
+
+[server]
+port = 3000
+url = "http://localhost"
+address = [127, 0, 0, 1]
+
+
+#[server.ssl]
+#cert = "./cert/cert.pem"
+#key = "./cert/key.pem"
+
+[database]
+connection = "sqlite"
+port = 3317
+name = "pillow"
+user = "root"
+password = "root"

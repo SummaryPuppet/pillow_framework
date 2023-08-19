@@ -1,9 +1,10 @@
 use crate::header::{self, ContentType};
 pub mod static_files;
 pub mod status_code;
+use serde::{Deserialize, Serialize};
 
 /// Response struct to client
-#[derive(Debug, PartialEq, Eq, Clone)]
+#[derive(Debug, PartialEq, Eq, Clone, Serialize, Deserialize)]
 pub struct Response {
     /// Like 200 OK
     status_code: StatusCode,
@@ -20,7 +21,7 @@ pub struct Response {
     content: Body,
 }
 
-#[derive(Debug, PartialEq, Eq, Clone)]
+#[derive(Debug, PartialEq, Eq, Clone, Serialize, Deserialize)]
 pub enum Body {
     STRING(String),
     BYTES(Vec<u8>),

@@ -1,7 +1,8 @@
+use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
 /// Body of http
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum Body {
     /// Json format
     JSON(Value),

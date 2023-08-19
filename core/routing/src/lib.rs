@@ -8,8 +8,6 @@
 
 mod route;
 mod router;
-mod server;
 
 pub use route::Route;
 pub use router::MainRouter;
-pub use server::Server;

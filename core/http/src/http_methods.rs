@@ -1,9 +1,11 @@
+use serde::{Deserialize, Serialize};
+
 /// Htpp Methods
 ///
 /// Like GET, POST, ...
 ///
 /// Not supported all methods yet
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy, Serialize, Deserialize)]
 pub enum HttpMethods {
     GET,
     POST,
