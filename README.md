@@ -4,12 +4,24 @@ Is a web framework for rust
 
 ## Getting started
 
+### With pillow-cli
+
+Need cargo, cargo-watch and cargo-generate
+
+```bash
+cargo install pillow-cli
+
+pillow-cli init <example_project>
+```
+
+### Manual
+
 Add dependency
 
 ```toml
 [dependencies]
 pillow = "0.3.0"
-tokio = {version = "1.23.0", features = ["full"]}
+tokio = {version = "1.23.0", features = ["macros"]}
 ```
 
 ## Simple Server
